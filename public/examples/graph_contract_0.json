@@ -1,0 +1,42 @@
+{
+    "nodes": [
+      { "id": "1", "label": "Node 1", "node_type": "Contract Declaration", "group": "A", "code_lines": "6-62", "message": "" },
+      { "id": "2", "label": "Node 2", "node_type": "Constructor", "group": "B", "code_lines": "8-14", "message": "" },
+      { "id": "3", "label": "Node 3", "node_type": "Expression", "group": "C", "code_lines": "13", "message": "" },
+      { "id": "4", "label": "Node 4", "node_type": "Function Declaration", "group": "D", "code_lines": "15-41", "message": "" },
+        { "id": "8", "label": "Node 8", "node_type": "Expression", "group": "C", "code_lines": "20-30", "message": "" },
+        { "id": "10", "label": "Node 10", "node_type": "Try", "group": "D", "code_lines": "31", "message": "" },
+        { "id": "11", "label": "Node 11", "node_type": "Return", "group": "E", "code_lines": "31-38", "message": "- Bug: Reentrancy \n - Reason: The use of external calls without proper checks can lead to reentrancy attacks if not handled correctly. \n - Suggestion: Use the Checks-Effects-Interactions pattern to prevent reentrancy vulnerabilities." },
+        { "id": "12", "label": "Node 12", "node_type": "Catch", "group": "F", "code_lines": "38-40", "message": "" },
+        { "id": "13", "label": "Node 13", "node_type": "Expression", "group": "C", "code_lines": "39", "message": "" },
+        { "id": "14", "label": "Node 14", "node_type": "Function Declaration", "group": "D", "code_lines": "42-61", "message": "" },
+        { "id": "15", "label": "Node 15", "node_type": "Expression", "group": "C", "code_lines": "47", "message": "" },
+        { "id": "16", "label": "Node 16", "node_type": "If", "group": "G", "code_lines": "48-50", "message": "" },
+        { "id": "17", "label": "Node 17", "node_type": "Expression", "group": "C", "code_lines": "49", "message": "- Bug: Arithmetic \n - Reason: The calculation may lead to integer overflow or underflow if not properly handled, especially with large numbers. \n - Suggestion: Use SafeMath library to handle arithmetic operations safely." },
+        { "id": "18", "label": "Node 18", "node_type": "End If", "group": "H", "code_lines": "48-50", "message": "" },
+        { "id": "19", "label": "Node 19", "node_type": "Expression", "group": "C", "code_lines": "51-53", "message": "" },
+        { "id": "20", "label": "Node 20", "node_type": "Expression", "group": "C", "code_lines": "54-58", "message": "" },
+        { "id": "21", "label": "Node 21", "node_type": "Expression", "group": "C", "code_lines": "59", "message": "- Bug: Access Control \n - Reason: While the function is restricted to the owner, there may be scenarios where additional access control measures are necessary to prevent misuse. \n - Suggestion: Consider implementing role-based access control to allow for more granular permissions." },
+        { "id": "22", "label": "Node 22", "node_type": "Expression", "group": "C", "code_lines": "60", "message": "" }
+    ],
+    "links": [
+      { "source": "1", "target": "2", "label": "Edge 1", "edge_type": "Next" },
+        { "source": "2", "target": "3", "label": "Edge 2", "edge_type": "Next"  },
+        { "source": "1", "target": "4", "label": "Edge 3", "edge_type": "Declare"  },
+        { "source": "4", "target": "8", "label": "Edge 4", "edge_type": "Next"  },
+        { "source": "8", "target": "10", "label": "Edge 8", "edge_type": "Next"  },
+        { "source": "10", "target": "11", "label": "Edge 10", "edge_type": "Next"  },
+        { "source": "10", "target": "12", "label": "Edge 11", "edge_type": "False"  },
+        { "source": "12", "target": "13", "label": "Edge 12", "edge_type": "Next"  },
+        { "source": "1", "target": "14", "label": "Edge 13", "edge_type": "Declare"  },
+        { "source": "14", "target": "15", "label": "Edge 14", "edge_type": "Next"  },
+        { "source": "15", "target": "16", "label": "Edge 14", "edge_type": "Next"  },
+        { "source": "16", "target": "17", "label": "Edge 14", "edge_type": "True"  },
+        { "source": "17", "target": "18", "label": "Edge 14", "edge_type": "Next"  },
+        { "source": "16", "target": "18", "label": "Edge 14", "edge_type": "False"  },
+        { "source": "18", "target": "19", "label": "Edge 14", "edge_type": "Next"  },
+        { "source": "19", "target": "20", "label": "Edge 14", "edge_type": "Next"  },
+        { "source": "20", "target": "21", "label": "Edge 14", "edge_type": "Next"  },
+        { "source": "21", "target": "22", "label": "Edge 14", "edge_type": "Next"  }
+    ]
+  }
