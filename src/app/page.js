@@ -30,7 +30,7 @@ export default function SmartContractVulnerability() {
 
   const [highlightLines, setHighlightLines] = useState([2,3, 6]);
   const [graphData, setGraphData] = useState(null);
-
+  const [hoveredLinesFromGraph, setHoveredLinesFromGraph] = useState([]);
 
   useEffect(() => {
     // Predefined list of Solidity files
@@ -79,6 +79,21 @@ export default function SmartContractVulnerability() {
   };
   const handleLineLeave = () => {
     setHoveredLineNumber(null);
+  };
+
+  const handleNodeHover = (lineNumber) => {
+    setHoveredLinesFromGraph(prev => {
+      // Convert to array if it's a Set
+      const currentLines = Array.isArray(prev) ? prev : Array.from(prev);
+      if (!currentLines.includes(lineNumber)) {
+        return [...currentLines, lineNumber];
+      }
+      return currentLines;
+    });
+  };
+
+  const handleNodeLeave = () => {
+    setHoveredLinesFromGraph([]);
   };
 
   console.log(hoveredLineNumber)
@@ -155,15 +170,23 @@ export default function SmartContractVulnerability() {
         View Bugs Detail
       </button>
       <div className="grid grid-cols-2 gap-0">
-        {/* <CodeViewer  /> */}
         {fineGrainedReport && 
-        <CodeViewer code={sourceCode} 
-                    fineGrainedReport={fineGrainedReport} 
-                    reportMessages={reportMessages}
-                    onLineHover={handleLineHover}
-                    onLineLeave={handleLineLeave} />
+          <CodeViewer 
+            code={sourceCode} 
+            fineGrainedReport={fineGrainedReport} 
+            reportMessages={reportMessages}
+            onLineHover={handleLineHover}
+            onLineLeave={handleLineLeave} 
+            hoveredLinesFromGraph={hoveredLinesFromGraph}
+          />
         }
-        {graphData && <Graph graphData={graphData} hoveredLineNumber={hoveredLineNumber}/>}
+        {graphData && 
+          <Graph 
+            graphData={graphData} 
+            hoveredLineNumber={hoveredLineNumber}
+            onNodeHover={handleNodeHover}
+            onNodeLeave={handleNodeLeave}
+            />}
       </div>
     </main>
   );

@@ -4,12 +4,16 @@ import dynamic from 'next/dynamic';
 
 const ForceGraph = dynamic(() => import('react-force-graph').then(mod => mod.ForceGraph2D), { ssr: false });
 
-export default function Graph({graphData, hoveredLineNumber = null}) {
+export default function Graph({
+  graphData, 
+  hoveredLineNumber = null, 
+  onNodeHover = () => {},
+   onNodeLeave = () => {}
+}) {
   const fgRef = useRef();
   const [highlightedNodes, setHighlightedNodes] = useState(null);
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [animatedNodes, setAnimatedNodes] = useState(new Set());
-
 
   // Find nodes that contain the hovered line number
   useEffect(() => {
@@ -93,6 +97,28 @@ export default function Graph({graphData, hoveredLineNumber = null}) {
     return 4;
   };
 
+  const handleNodeHover = (node) => {
+    if (!node) {
+      onNodeLeave();
+      return;
+    }
+    
+    // Convert code_lines to array of line numbers
+    const lines = node.code_lines.split('-');
+    if (lines.length === 1) {
+      onNodeHover(parseInt(lines[0], 10));
+    } else if (lines.length === 2) {
+      const start = parseInt(lines[0], 10);
+      const end = parseInt(lines[1], 10);
+      // Create array of all lines in range
+      const lineRange = Array.from(
+        { length: end - start + 1 }, 
+        (_, i) => start + i
+      );
+      // Send all lines at once
+      lineRange.forEach(line => onNodeHover(line));
+    }
+  };
 
   return (
     <>
@@ -123,11 +149,8 @@ export default function Graph({graphData, hoveredLineNumber = null}) {
           cooldownTicks={100}
           d3AlphaDecay={0.02}
           d3VelocityDecay={0.3}
-          // Add these new props for tooltip customization
-          // linkWidth={5}
-          // nodeRelSize={6}
-          // backgroundColor="#ffffff"
-          // Customize tooltip CSS
+          onNodeHover={(node) => handleNodeHover(node)}
+          onNodeOut={() => onNodeLeave()}
         />
       </div>
     </div>

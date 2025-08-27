@@ -6,10 +6,15 @@ import { solidity } from 'react-syntax-highlighter/dist/esm/languages/hljs';
 import {coy} from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { solarizedlight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-const CodeViewer = ({ code, fineGrainedReport = [],
+const CodeViewer = ({ 
+  code,
+  fineGrainedReport = [],
   reportMessages = {},
   onLineHover = () => {},
-  onLineLeave = () => {}}) => {
+  onLineLeave = () => {},
+  hoveredLinesFromGraph = []
+}) => {
+
   const [hoveredLine, setHoveredLine] = React.useState(null);
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
   const containerRef = React.useRef(null);
@@ -47,6 +52,20 @@ const CodeViewer = ({ code, fineGrainedReport = [],
       className="relative flex flex-col h-screen bg-gray-200 p-5 mt-6 border-blue-700 border-[3px] rounded-xl"
       onMouseMove={handleMouseMove}
     >
+      <style jsx global>{`
+        @keyframes highlight-pulse {
+          0% { background-color: rgba(255, 165, 0, 0.2); }
+          50% { background-color: rgba(255, 165, 0, 0.5); }
+          100% { background-color: rgba(255, 165, 0, 0.2); }
+        }
+        .highlight-from-graph {
+          animation: highlight-pulse 1.5s ease-in-out infinite;
+          background-color: rgba(255, 165, 0, 0.2);
+          border-radius: 4px;
+          margin: -2px;
+          padding: 2px;
+        }
+      `}</style>
       <h1 className="text-2xl font-bold text-center mb-4 text-black">Smart contract</h1>
       
       <div className="relative flex-1 overflow-auto">
@@ -58,18 +77,33 @@ const CodeViewer = ({ code, fineGrainedReport = [],
           lineProps={(lineNumber) => {
             const style = { display: 'block', width: 'fit-content' };
             const isHighlighted = fineGrainedReport.includes(lineNumber);
+            const isHighlightedFromGraph = hoveredLinesFromGraph.includes(lineNumber);
+            
+            // if (isHighlighted || isHighlightedFromGraph) {
+            //   style.backgroundColor = isHighlightedFromGraph ? '#FFE4B5' : '#FFDB81';
+            //   style.cursor = 'pointer';
+            //   style.transition = 'all 0.2s ease-in-out';
+            //   style.position = 'relative';
+            //   style.transform = hoveredLine === lineNumber ? 'scale(1.1)' : 'scale(1)';
+            //   style.boxShadow = isHighlightedFromGraph ? '0 0 8px rgba(255, 165, 0, 0.5)' : 'none';
+            // }
+            
+            if (isHighlightedFromGraph) {
+              // style.position = 'relative';
+              // style.zIndex = 1;
+              style.animation = 'highlight-pulse 1.5s ease-in-out infinite';
+              style.backgroundColor = 'rgba(255, 165, 0, 0.2)';
+            }
             
             if (isHighlighted) {
               style.backgroundColor = '#FFDB81';
               style.cursor = 'pointer';
-              style.transition = 'all 0.2s ease-in-out';
-              style.position = 'relative';
-              style.transform = hoveredLine === lineNumber ? 'scale(1.1)' : 'scale(1)';
             }
             
             return { 
               style,
-              onMouseEnter: isHighlighted ? () => handleLineHover(lineNumber, true) : undefined,
+              className: isHighlightedFromGraph ? 'highlight-from-graph' : '',
+              onMouseEnter: isHighlighted ? () => handleLineHover(lineNumber) : undefined,
               onMouseLeave: isHighlighted ? () => handleLineLeave() : undefined,
             };
           }}
