@@ -1,81 +1,136 @@
 "use client"
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 const ForceGraph = dynamic(() => import('react-force-graph').then(mod => mod.ForceGraph2D), { ssr: false });
 
-const initialGraph = {
-  nodes: [
-    { "id": "1", "label": "Node 1", "group": "A" },
-      { "id": "2", "label": "Node 2", "group": "B" },
-      { "id": "3", "label": "Node 3", "group": "A" },
-      { "id": "4", "label": "Node 4", "group": "C" },
-      { "id": "5", "label": "Node 5", "group": "B" },
-      { "id": "6", "label": "Node 6", "group": "A" },
-      { "id": "7", "label": "Node 7", "group": "C" },
-      { "id": "8", "label": "Node 8", "group": "B" },
-      { "id": "9", "label": "Node 9", "group": "A" },
-      { "id": "10", "label": "Node 10", "group": "C" }
-  ],
-  links: [
-    { "source": "1", "target": "2", "label": "Edge 1" },
-      { "source": "2", "target": "3", "label": "Edge 2" },
-      { "source": "3", "target": "4", "label": "Edge 3" },
-      { "source": "4", "target": "5", "label": "Edge 4" },
-      { "source": "5", "target": "6", "label": "Edge 5" },
-      { "source": "6", "target": "7", "label": "Edge 6" },
-      { "source": "7", "target": "8", "label": "Edge 7" },
-      { "source": "8", "target": "9", "label": "Edge 8" },
-      { "source": "9", "target": "10", "label": "Edge 9" },
-      { "source": "10", "target": "1", "label": "Edge 10" },
-      { "source": "1", "target": "5", "label": "Edge 11" },
-      { "source": "2", "target": "6", "label": "Edge 12" },
-      { "source": "3", "target": "7", "label": "Edge 13" },
-      { "source": "4", "target": "8", "label": "Edge 14" },
-      { "source": "9", "target": "2", "label": "Edge 15" }
-  ]
-};
-  
+export default function Graph({graphData, hoveredLineNumber = null}) {
+  const fgRef = useRef();
+  const [highlightedNodes, setHighlightedNodes] = useState(null);
+  const [hoveredNodeId, setHoveredNodeId] = useState(null);
+  const [animatedNodes, setAnimatedNodes] = useState(new Set());
 
-export default function Graph({graphData}) {
-  // const [graphData, setGraphData] = useState(initialGraph);
 
-  // const handleInputChange = (e) => {
-  //   try {
-  //     const updatedGraph = JSON.parse(e.target.value);
-  //     setGraphData(updatedGraph);
-  //   } catch (err) {
-  //     console.error('Invalid JSON input', err);
+  // Find nodes that contain the hovered line number
+  useEffect(() => {
+    if (hoveredLineNumber && graphData) {
+      const matchingNodes = graphData.nodes.filter(node => {
+        if (!node.code_lines) return false;
+        
+        const lines = node.code_lines.split('-');
+        if (lines.length === 1) {
+          return parseInt(lines[0], 10) === hoveredLineNumber;
+        } else { return false;}
+      });
+      console.log('Matching nodes for line', matchingNodes);
+      setHighlightedNodes(new Set(matchingNodes.map(node => node.id)));
+    } else {
+      setHighlightedNodes(new Set());
+    }
+  }, [hoveredLineNumber, graphData]);
+
+  //     if (matchingNodes.length > 0) {
+  //       setHoveredNodeId(matchingNodes[0].id);
+  //       setAnimatedNodes(new Set(matchingNodes.map(node => node.id)));
+        
+  //       // Focus on the first matching node
+  //       if (fgRef.current) {
+  //         const node = matchingNodes[0];
+  //         fgRef.current.centerAt(node.x, node.y, 1000);
+  //         fgRef.current.zoom(3, 1000);
+  //       }
+  //     }
+  //   } else {
+  //     setHoveredNodeId(null);
+  //     setAnimatedNodes(new Set());
+      
+  //     // Reset zoom when not hovering
+  //     if (fgRef.current) {
+  //       fgRef.current.zoom(1, 1000);
+  //     }
   //   }
-  // };
+  // }, [hoveredLineNumber, graphData]);
+
   const paintRing = (node, ctx) => {
-    // add ring just for highlighted nodes
-    // let gData=graphData;
+    // const isHighlighted = node.id === hoveredNodeId;
+    const isHighlighted = highlightedNodes.has(node.id);
+    const scale = isHighlighted ? 2.2 : 1.8;
+    
     ctx.beginPath();
-    ctx.arc(node.x, node.y, 4 * 1.8, 0, 2 * Math.PI, false);
-    ctx.fillStyle = (node.message === '') ? 'white': 'red' // gData.nodes[node.id].nodeColor;
+    ctx.arc(node.x, node.y, 4 * scale, 0, 2 * Math.PI, false);
+
+    if (isHighlighted) {
+      ctx.fillStyle = '#FF4500'; // Bright orange for highlighted nodes
+      ctx.strokeStyle = '#FFA500'; // Light orange border
+      ctx.lineWidth = 3;
+    } else {
+      ctx.fillStyle = node.message === '' ? 'white' : 'red';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+    }
+    
     ctx.fill();
     ctx.stroke();
+  
+    if (isHighlighted) {
+      ctx.shadowColor = '#FF4500';
+      ctx.shadowBlur = 15;
+      ctx.strokeStyle = '#FF4500';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.shadowBlur = 0; // Reset shadow for other nodes
+    }
   };
 
+
+  const getNodeSize = (node) => {
+    if (animatedNodes.has(node.id)) {
+      // Dynamic size based on time for breathing effect
+      const time = Date.now() * 0.008;
+      const breathe = 1 + Math.sin(time) * 0.3;
+      return 15 * breathe;
+    }
+    return 4;
+  };
+
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-200 p-5 mt-6 border-blue-700 border-[3px] rounded-xl">
+    <>
+    {/* Custom CSS for larger tooltips */}
+      <style jsx global>{`
+        .float-tooltip-kap {
+          font-size: 19px !important;
+          padding: 12px 16px !important;
+          color: white !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+          line-height: 1.4 !important;
+          white-space: pre-wrap !important;
+          z-index: 1000 !important;
+        }
+      `}</style>
+    <div className="flex flex-col h-screen bg-gray-200 p-5 mt-6 border-blue-700 border-[3px] rounded-xl">
       <h1 className="text-2xl font-bold text-center mb-4 text-black">Graph Visualizer</h1>
-      {/* <textarea
-        className="w-full h-40 p-2 border rounded mb-4"
-        placeholder="Paste your JSON here..."
-        onChange={handleInputChange}
-      /> */}
-      <div className="flex flex-col p-4 rounded shadow-md bg-white')]">
+      <div className="flex-1 overflow-hidden rounded shadow-md bg-white">
         <ForceGraph
+          ref={fgRef}
           nodeCanvasObject={paintRing}
           nodeCanvasObjectMode={node => 'before'}
           graphData={graphData}
           nodeLabel={(node) => `Lines: ${node.code_lines} ${node.label} - Node Type: ${node.node_type} ${node.message}`}
           linkLabel={(link) => link.edge_type}
           nodeAutoColorBy="group"
+          cooldownTicks={100}
+          d3AlphaDecay={0.02}
+          d3VelocityDecay={0.3}
+          // Add these new props for tooltip customization
+          // linkWidth={5}
+          // nodeRelSize={6}
+          // backgroundColor="#ffffff"
+          // Customize tooltip CSS
         />
       </div>
     </div>
+  </>
   );
 }

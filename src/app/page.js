@@ -13,27 +13,20 @@ import DetectionForm from "./components/DetectionForm";
 import VulnerabilityGrid from "./components/VulnerabilityGrid";
 import CodeViewer from './components/ConsoleCode'
 import Graph from './components/Graph'
+import { c } from "react-syntax-highlighter/dist/esm/languages/hljs";
+import { hover } from "framer-motion";
 // import FileSelector from "./components/FileSelector";
 
 
 export default function SmartContractVulnerability() {
-// class SmartContractVulnerability extends Component {
-//   constructor(props){
-//     super(props)
-//     this.state = {
-//       // Initially, no file is selected
-//         fileNames: null,
-//         selectedFile: null,
-//         sourceCode: '',
-//       },
-//   }
-  
   const [fileNames, setFileNames] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
   const [sourceCode, setSourceCode] = useState('');
+  const [reportMessages, setReportMessages] = useState({});
   const [bugReport, setBugReport] = useState(null);
   const [coarseGrainedReport, setCoarseGrainedReport] = useState(null);
   const [fineGrainedReport, setFineGrainedReport] = useState(null);
+  const [hoveredLineNumber, setHoveredLineNumber] = useState(null);
 
   const [highlightLines, setHighlightLines] = useState([2,3, 6]);
   const [graphData, setGraphData] = useState(null);
@@ -41,7 +34,7 @@ export default function SmartContractVulnerability() {
 
   useEffect(() => {
     // Predefined list of Solidity files
-    setFileNames(['contract_0.sol', 'Renora_DDCAAribitrum.sol']);
+    setFileNames(['contract_0.sol', 'Renora_DDCAAribitrum.sol', 'DAO.sol']);
   }, []);
   const handleFileChange = async (event) => {
     const fileName = event.target.value;
@@ -55,11 +48,40 @@ export default function SmartContractVulnerability() {
     setFineGrainedReport(reports['fine_grained'])
     const graph = await fetch(`/examples/graph_${fileCore}.json`).then(reports => reports.json());
     setGraphData(graph)
+    
+    // Loop the graph data and create the report with key is the line number and value is the message if the message is not empty
+    let reportMessages = {};
+    graph.nodes.forEach(node => {
+      if (node.message && node.message !== '') {
+        const lines = node.code_lines.split('-');
+        if (lines.length === 1) {
+          reportMessages[parseInt(lines[0], 10)] = node.message;
+        } else if (lines.length === 2) {
+          const start = parseInt(lines[0], 10);
+          const end = parseInt(lines[1], 10);
+          for (let i = start; i <= end; i++) {
+            reportMessages[i] = node.message;
+          }
+        }
+      }
+    });
+
+    setReportMessages(reportMessages);
+    console.log(reportMessages);
 
     const code = await response.text();
     setSourceCode(code);
   };
 
+  // Handlers for synchronizing hover effects
+  const handleLineHover = (lineNumber) => {
+    setHoveredLineNumber(lineNumber);
+  };
+  const handleLineLeave = () => {
+    setHoveredLineNumber(null);
+  };
+
+  console.log(hoveredLineNumber)
   return (
     <main className="flex overflow-hidden flex-col pb-10 bg-slate-950">
       <Header />
@@ -134,8 +156,14 @@ export default function SmartContractVulnerability() {
       </button>
       <div className="grid grid-cols-2 gap-0">
         {/* <CodeViewer  /> */}
-        {fineGrainedReport && <CodeViewer code={sourceCode} fineGrainedReport={fineGrainedReport}/>}
-        {graphData && <Graph graphData={graphData}/>}
+        {fineGrainedReport && 
+        <CodeViewer code={sourceCode} 
+                    fineGrainedReport={fineGrainedReport} 
+                    reportMessages={reportMessages}
+                    onLineHover={handleLineHover}
+                    onLineLeave={handleLineLeave} />
+        }
+        {graphData && <Graph graphData={graphData} hoveredLineNumber={hoveredLineNumber}/>}
       </div>
     </main>
   );
