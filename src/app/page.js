@@ -31,6 +31,7 @@ export default function SmartContractVulnerability() {
   const [highlightLines, setHighlightLines] = useState([2,3, 6]);
   const [graphData, setGraphData] = useState(null);
   const [hoveredLinesFromGraph, setHoveredLinesFromGraph] = useState([]);
+  const [scrollToLine, setScrollToLine] = useState(null);
 
   useEffect(() => {
     // Predefined list of Solidity files
@@ -96,33 +97,39 @@ export default function SmartContractVulnerability() {
     setHoveredLinesFromGraph([]);
   };
 
-  console.log(hoveredLineNumber)
+  const handleNodeClick = (lineNumber) => {
+    setScrollToLine(lineNumber);
+  };
+
   return (
-    <main className="flex overflow-hidden flex-col pb-10 bg-slate-950">
+    <main className="flex overflow-hidden min-h-screen flex-col pb-10 bg-slate-950">
       <Header />
-      <Image
+      {/* <Image
         src="./top_background.svg"
         alt="Descriptive text for screen readers"
         width={500}
         height={300}
         layout="responsive"
-      />
+      /> */}
       {/* <Hero /> */}
       <section
         className="flex justify-between items-center p-20 bg-gray-900 bg-opacity-70 max-md:px-5"
         aria-labelledby="detection-form-title"
       >
         <div className="flex flex-col items-center self-stretch py-10 my-auto min-w-[240px] w-[1280px]">
+          <h1 className="text-4xl font-bold tracking-tight text-center text-white max-md:max-w-full mb-6">
+            Smart Contract Vulnerability Detection
+          </h1>
           <h2
             id="detection-form-title"
-            className="text-2xl font-bold tracking-tight text-center text-white max-md:max-w-full"
+            className="text-2xl font-bold tracking-tight text-center text-white max-md:max-w-full mb-6"
           >
-            Enter the information below to start detection
+            Try examples
           </h2>
           {/* <DetectionForm /> */}
 
             <form>
-              <div className="flex relative gap-3 items-start w-full text-base">
+              {/* <div className="flex relative gap-3 items-start w-full text-base">
                 <label htmlFor="file-input" className="sr-only">
                   Attach file
                 </label>
@@ -138,7 +145,7 @@ export default function SmartContractVulnerability() {
                 </div>
                 <Button className="flex overflow-hidden absolute right-0 top-2/4 z-0 flex-col justify-center items-center px-4 h-14 font-bold text-center bg-blue-600 rounded-xl border border-solid -translate-y-2/4 border-zinc-200 min-h-[56px] min-w-[120px] text-white translate-x-[0%] hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                   tabIndex={0} color="primary">Attach File</Button>;
-              </div>
+              </div> */}
 
               <div className="flex overflow-y-auto gap-2.5 px-4 w-full bg-white rounded-xl border border-gray-100 border-solid min-h-[56px] mt-3">
                 <select
@@ -146,13 +153,13 @@ export default function SmartContractVulnerability() {
                   className="flex-1 shrink self-stretch h-full text-base bg-black bg-opacity-0 min-w-[240px] text-ellipsis text-zinc-400"
                   value={selectedFile}
                   onChange={handleFileChange}
-                  placeholder='-- Select a File --'
+                  // placeholder='-- Select a File --'
                 >
-                  {/* <option value="" disabled selected>-- Select a File --</option> */}
+                  <option value="" disabled>-- Select a File --</option>
                   {fileNames.map((file) => (
-                    <option key={file} value={file}>
-                      {file}
-                    </option>
+                  <option key={file} value={file}>
+                    {file}
+                  </option>
                   ))}
                 </select>
               </div>
@@ -163,12 +170,12 @@ export default function SmartContractVulnerability() {
       {coarseGrainedReport && <VulnerabilityGrid coarseGrainedReports={coarseGrainedReport} />}
       
 
-      <button
+      {/* <button
         className="flex overflow-hidden flex-col justify-center items-center self-center px-4 mt-12 max-w-full text-base font-bold text-center text-blue-600 bg-white rounded-xl min-h-[56px] w-[300px] max-md:mt-10 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
         tabIndex={0}
       >
         View Bugs Detail
-      </button>
+      </button> */}
       <div className="grid grid-cols-2 gap-0">
         {fineGrainedReport && 
           <CodeViewer 
@@ -178,6 +185,7 @@ export default function SmartContractVulnerability() {
             onLineHover={handleLineHover}
             onLineLeave={handleLineLeave} 
             hoveredLinesFromGraph={hoveredLinesFromGraph}
+            scrollToLine={scrollToLine}
           />
         }
         {graphData && 
@@ -186,6 +194,7 @@ export default function SmartContractVulnerability() {
             hoveredLineNumber={hoveredLineNumber}
             onNodeHover={handleNodeHover}
             onNodeLeave={handleNodeLeave}
+            onNodeClick={handleNodeClick}
             />}
       </div>
     </main>

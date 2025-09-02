@@ -12,19 +12,81 @@ const CodeViewer = ({
   reportMessages = {},
   onLineHover = () => {},
   onLineLeave = () => {},
-  hoveredLinesFromGraph = []
+  hoveredLinesFromGraph = [],
+  scrollToLine = null,
+  clickedLineMessage = null
 }) => {
 
   const [hoveredLine, setHoveredLine] = React.useState(null);
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
   const containerRef = React.useRef(null);
+  const codeRef = React.useRef(null);
+  React.useEffect(() => {
+    if (scrollToLine && codeRef.current) {
+      const lineElements = codeRef.current.querySelectorAll('[data-line-number]');
+      const targetLine = Array.from(lineElements).find(
+        el => parseInt(el.dataset.lineNumber) === scrollToLine
+      );
+      
+      if (targetLine) {
+        targetLine.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+        
+        // Add highlight animation
+        targetLine.classList.add('highlight-scroll');
+        setTimeout(() => {
+          targetLine.classList.remove('highlight-scroll');
+        }, 2000);
+      }
+    }
+  }, [scrollToLine]);
+
+  // React.useEffect(() => {
+  //   if (clickedLineMessage && codeRef.current) {
+  //     const lineElements = codeRef.current.querySelectorAll('[data-line-number]');
+  //     const targetLine = Array.from(lineElements).find(
+  //       el => parseInt(el.dataset.lineNumber) === clickedLineMessage.line
+  //     );
+      
+  //     if (targetLine && fineGrainedReport.includes(clickedLineMessage.line)) {
+  //       const rect = targetLine.getBoundingClientRect();
+  //       const containerRect = containerRef.current.getBoundingClientRect();
+        
+  //       setMousePosition({
+  //         x: containerRect.width / 2,
+  //         y: rect.top - containerRect.top + rect.height / 2
+  //       });
+  //       setHoveredLine(clickedLineMessage.line);
+        
+  //       // Add highlight animation class
+  //       targetLine.classList.add('highlight-click');
+
+  //       // // Auto-hide message after 5 seconds
+  //       // const timer = setTimeout(() => {
+  //       //   setHoveredLine(null);
+  //       // }, 5000);
+  //       // Auto-hide message and remove highlight after 5 seconds
+  //       const timer = setTimeout(() => {
+  //         setHoveredLine(null);
+  //         targetLine.classList.remove('highlight-click');
+  //       }, 5000);
+        
+  //       return () => {
+  //         clearTimeout(timer);
+  //         targetLine.classList.remove('highlight-click');
+  //       };
+  //     }
+  //   }
+  // }, [clickedLineMessage, fineGrainedReport]);
 
   const handleMouseMove = (event) => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       setMousePosition({
         x: event.clientX - rect.left,
-        y: event.clientY - rect.top + 40
+        y: event.clientY - rect.top
       });
     }
   };
@@ -65,10 +127,27 @@ const CodeViewer = ({
           margin: -2px;
           padding: 2px;
         }
+        .highlight-scroll {
+          animation: highlight-scroll 2s ease-out;
+        }
+        @keyframes highlight-scroll {
+          0% { background-color: rgba(255, 220, 0, 0.8); }
+          100% { background-color: transparent; }
+        }
+        .highlight-click {
+          animation: highlight-click 5s ease-out;
+        }
+        
+        @keyframes highlight-click {
+          0% { background-color: rgba(255, 0, 0, 0.4); }
+          10% { background-color: rgba(255, 0, 0, 0.6); }
+          20% { background-color: rgba(255, 0, 0, 0.4); }
+          100% { background-color: transparent; }
+        }
       `}</style>
       <h1 className="text-2xl font-bold text-center mb-4 text-black">Smart contract</h1>
       
-      <div className="relative flex-1 overflow-auto">
+      <div ref={codeRef} className="relative flex-1 overflow-auto">
         <SyntaxHighlighter
           language="solidity"
           style={coy}
@@ -103,6 +182,7 @@ const CodeViewer = ({
             return { 
               style,
               className: isHighlightedFromGraph ? 'highlight-from-graph' : '',
+              'data-line-number': lineNumber,
               onMouseEnter: isHighlighted ? () => handleLineHover(lineNumber) : undefined,
               onMouseLeave: isHighlighted ? () => handleLineLeave() : undefined,
             };
@@ -120,7 +200,7 @@ const CodeViewer = ({
               top: mousePosition.y - 10,
               animation: 'fadeInScale 0.2s ease-out forwards',
               minWidth: '600px',
-              maxWidth: '1000px'
+              maxWidth: '600px'
             }}
           >
             <ul className="list-disc pl-4 space-y-2">

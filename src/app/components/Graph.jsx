@@ -8,7 +8,8 @@ export default function Graph({
   graphData, 
   hoveredLineNumber = null, 
   onNodeHover = () => {},
-   onNodeLeave = () => {}
+  onNodeLeave = () => {},
+  onNodeClick = () => {}
 }) {
   const fgRef = useRef();
   const [highlightedNodes, setHighlightedNodes] = useState(null);
@@ -120,6 +121,21 @@ export default function Graph({
     }
   };
 
+  const handleNodeClick = (node) => {
+    if (!node) return;
+    
+    // Convert code_lines to array of line numbers
+    const lines = node.code_lines.split('-');
+    if (lines.length === 1) {
+      onNodeClick(parseInt(lines[0], 10));
+    } else if (lines.length === 2) {
+      const start = parseInt(lines[0], 10);
+      const end = parseInt(lines[1], 10);
+      const center = parseInt((start + end) / 2, 10);
+      onNodeClick(start); // Scroll to the start of the range
+    }
+  };
+
   return (
     <>
     {/* Custom CSS for larger tooltips */}
@@ -133,6 +149,7 @@ export default function Graph({
           line-height: 1.4 !important;
           white-space: pre-wrap !important;
           z-index: 1000 !important;
+          background: rgba(0, 0, 0, 0.65) !important;  
         }
       `}</style>
     <div className="flex flex-col h-screen bg-gray-200 p-5 mt-6 border-blue-700 border-[3px] rounded-xl">
@@ -143,7 +160,7 @@ export default function Graph({
           nodeCanvasObject={paintRing}
           nodeCanvasObjectMode={node => 'before'}
           graphData={graphData}
-          nodeLabel={(node) => `Lines: ${node.code_lines} ${node.label} - Node Type: ${node.node_type} ${node.message}`}
+          nodeLabel={(node) => `Lines: ${node.code_lines}\n${node.label}\nNode Type: ${node.node_type}`}
           linkLabel={(link) => link.edge_type}
           nodeAutoColorBy="group"
           cooldownTicks={100}
@@ -151,6 +168,7 @@ export default function Graph({
           d3VelocityDecay={0.3}
           onNodeHover={(node) => handleNodeHover(node)}
           onNodeOut={() => onNodeLeave()}
+          onNodeClick={(node) => handleNodeClick(node)}
         />
       </div>
     </div>

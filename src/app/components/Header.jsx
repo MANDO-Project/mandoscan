@@ -19,10 +19,10 @@ export const AcmeLogo = () => {
             src="./mando_logo.svg"
             alt="MANDO Logo"
             // fill='true'
-            width="45"
-            height="45"
+            width="900"
+            height="900"
             viewBox="0 0 0 0"
-            layout="responsive"
+            layout="intrinsic"
           />
   );
 };
@@ -80,7 +80,9 @@ export default function Header() {
     <Navbar className="flex z-10 flex-col justify-center px-20 w-full leading-tight border-b border-white border-opacity-10 min-h-[80px] max-md:px-5 max-md:max-w-full">
       <NavbarBrand>
         <AcmeLogo />
-        <p className="font-bold text-inherit">Home</p>
+        <Link color="home" href={"https://mandoscan.com"}>
+            Home
+          </Link>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-6" justify="left">
         <NavbarItem>

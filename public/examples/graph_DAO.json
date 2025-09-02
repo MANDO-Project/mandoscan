@@ -1,15 +1,15 @@
 {
     "nodes": [
       { "id": "1", "label": "Node 1", "node_type": "Contract Declaration", "group": "A", "code_lines": "2-15", "message": "" },
-      { "id": "2", "label": "Node 2", "node_type": "Function Declaration", "group": "A", "code_lines": "4-6", "message": "" },
-      { "id": "3", "label": "Node 3", "node_type": "Expression", "group": "A", "code_lines": "5", "message": "" },
-      { "id": "4", "label": "Node 4", "node_type": "Function Declaration", "group": "A", "code_lines": "7-12", "message": "" },
-      { "id": "5", "label": "Node 5", "node_type": "If", "group": "A", "code_lines": "8-11", "message": "" },
-      { "id": "6", "label": "Node 6", "node_type": "Expression", "group": "A", "code_lines": "9", "message": "Bug: Reentrancy\n Reason: The core reason is the flawed order of operations in the withdraw function. The contract sends Ether to an external address before it updates its internal state\n Suggestion: Follow the Checks-Effects-Interactions pattern. The state change (deducting the credit) must happen before sending the Ether." },
-      { "id": "7", "label": "Node 7", "node_type": "Expression", "group": "A", "code_lines": "10", "message": "" },
-      { "id": "8", "label": "Node 8", "node_type": "End If", "group": "A", "code_lines": "8-11", "message": "" },
-      { "id": "9", "label": "Node 9", "node_type": "Function Declaration", "group": "A", "code_lines": "13-15", "message": "" },
-      { "id": "10", "label": "Node 10", "node_type": "Return", "group": "A", "code_lines": "14", "message": "" }
+      { "id": "2", "label": "Node 2", "node_type": "Function Declaration", "group": "D", "code_lines": "4-6", "message": "" },
+      { "id": "3", "label": "Node 3", "node_type": "Expression", "group": "C", "code_lines": "5", "message": "" },
+      { "id": "4", "label": "Node 4", "node_type": "Function Declaration", "group": "D", "code_lines": "7-12", "messDge": "" },
+      { "id": "5", "lDbel": "Node 5", "node_type": "If", "group": "G", "code_lines": "8-11", "message": "" },
+      { "id": "6", "label": "Node 6", "node_type": "Expression", "group": "C", "code_lines": "9", "message": "Bug: Reentrancy\n Reason: The core reason is the flawed order of operations in the withdraw function. The contract sends Ether to an external address before it updates its internal state\n Suggestion: Follow the Checks-Effects-Interactions pattern. The state change (deducting the credit) must happen before sending the Ether." },
+      { "id": "7", "label": "Node 7", "node_type": "Expression", "group": "C", "code_lines": "10", "message": "" },
+      { "id": "8", "label": "Node 8", "node_type": "End If", "group": "H", "code_lines": "8-11", "message": "" },
+      { "id": "9", "label": "Node 9", "node_type": "Function Declaration", "group": "D", "code_lines": "13-15", "message": "" },
+      { "id": "10", "label": "Node 10", "node_type": "Return", "group": "E", "code_lines": "14", "message": "" }
     ],
     "links": [
       { "source": "1", "target": "2", "label": "Edge 1", "edge_type": "Declare" },
