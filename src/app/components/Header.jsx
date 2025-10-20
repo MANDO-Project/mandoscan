@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from 'next/image';
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@heroui/react";
-
+import AuthControls from "./AuthControls";
 
 export const AcmeLogo = () => {
   return (
@@ -28,7 +28,6 @@ export const AcmeLogo = () => {
 };
 
 
-
 export default function Header() {
   const navItems = [
     "Overview",
@@ -39,42 +38,6 @@ export default function Header() {
     "Team",
     "Mando Tool",
   ];
-
-  // return (
-  //   <header className="flex z-10 flex-col justify-center px-20 w-full leading-tight border-b border-white border-opacity-10 min-h-[80px] max-md:px-5 max-md:max-w-full">
-  //     <nav className="flex flex-wrap flex-1 justify-center items-center size-full max-md:max-w-full">
-  //       <img
-  //         loading="lazy"
-  //         src="https://cdn.builder.io/api/v1/image/assets/TEMP/e14e0769710130f1a6684608d068aff6993a3f40bb9caa1d6b53ba3e3c708eca?placeholderIfAbsent=true&apiKey=8195f1a9ffb1413790dbaff62dc171be"
-  //         alt="Company Logo"
-  //         className="object-contain shrink-0 self-stretch my-auto aspect-[2.59] w-[140px]"
-  //       />
-  //       <div className="flex flex-wrap flex-1 shrink items-center self-stretch px-20 my-auto text-sm basis-0 min-w-[240px] text-zinc-400 max-md:px-5 max-md:max-w-full">
-  //         {navItems.map((item, index) => (
-  //           <button
-  //             key={index}
-  //             className="self-stretch px-6 py-8 my-auto whitespace-nowrap min-h-[80px] max-md:px-5 hover:text-white focus:text-white focus:outline-none"
-  //             tabIndex={0}
-  //           >
-  //             {item}
-  //           </button>
-  //         ))}
-  //       </div>
-  //       <button
-  //         className="flex gap-2 items-center self-stretch px-6 py-3 my-auto text-xs text-white whitespace-nowrap border border-solid border-zinc-700 rounded-[1000px] max-md:px-5 hover:bg-zinc-800 focus:bg-zinc-800 focus:outline-none"
-  //         tabIndex={0}
-  //       >
-  //         <span className="self-stretch my-auto">ENG</span>
-  //         <img
-  //           loading="lazy"
-  //           src="https://cdn.builder.io/api/v1/image/assets/TEMP/574a23cad14166362f5d8de1eae4c18c79d232e86137bcd597cbc4793472e593?placeholderIfAbsent=true&apiKey=8195f1a9ffb1413790dbaff62dc171be"
-  //           alt=""
-  //           className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
-  //         />
-  //       </button>
-  //     </nav>
-  //   </header>
-  // );
 
   return (
     <Navbar className="flex z-10 flex-col justify-center px-20 w-full leading-tight border-b border-white border-opacity-10 min-h-[80px] max-md:px-5 max-md:max-w-full">
@@ -122,13 +85,14 @@ export default function Header() {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
-        </NavbarItem>
+        {/* <NavbarItem className="hidden lg:flex">
+          <Link href="#">Login| </Link>
+        </NavbarItem> */}
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
+          {/* <Button as={Link} color="primary" href="#" variant="flat">
             Sign Up
-          </Button>
+          </Button> */}
+            <AuthControls />
         </NavbarItem>
       </NavbarContent>
     </Navbar>
