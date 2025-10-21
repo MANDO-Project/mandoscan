@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from "react-oidc-context";
+import { useAuth } from 'react-oidc-context';
 import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ActivityTable from '../components/ActivityTable';
@@ -12,7 +12,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     totalScans: 0,
     vulnerabilitiesFound: 0,
-    lastScanDate: null
+    lastScanDate: null,
   });
 
   useEffect(() => {
@@ -24,15 +24,15 @@ export default function Dashboard() {
         fileName: 'contract_1.sol',
         timestamp: new Date().toISOString(),
         vulnerabilities: 3,
-        status: 'completed'
-      }
+        status: 'completed',
+      },
     ];
     setActivities(mockActivities);
   }, []);
 
   if (!auth.isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-white">Please login to view your dashboard</div>
       </div>
     );
@@ -42,7 +42,7 @@ export default function Dashboard() {
     <main className="min-h-screen bg-slate-950">
       {/* <Header /> */}
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-white mb-8">Dashboard</h1>
+        <h1 className="mb-8 text-3xl font-bold text-white">Dashboard</h1>
         <DashboardStats stats={stats} />
         <ActivityTable activities={activities} />
       </div>

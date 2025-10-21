@@ -1,15 +1,18 @@
-"use client"
+'use client';
 import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-const ForceGraph = dynamic(() => import('react-force-graph').then(mod => mod.ForceGraph2D), { ssr: false });
+const ForceGraph = dynamic(
+  () => import('react-force-graph').then((mod) => mod.ForceGraph2D),
+  { ssr: false }
+);
 
 export default function Graph({
-  graphData, 
-  hoveredLineNumber = null, 
+  graphData,
+  hoveredLineNumber = null,
   onNodeHover = () => {},
   onNodeLeave = () => {},
-  onNodeClick = () => {}
+  onNodeClick = () => {},
 }) {
   const fgRef = useRef();
   const [highlightedNodes, setHighlightedNodes] = useState(null);
@@ -19,48 +22,27 @@ export default function Graph({
   // Find nodes that contain the hovered line number
   useEffect(() => {
     if (hoveredLineNumber && graphData) {
-      const matchingNodes = graphData.nodes.filter(node => {
+      const matchingNodes = graphData.nodes.filter((node) => {
         if (!node.code_lines) return false;
-        
+
         const lines = node.code_lines.split('-');
         if (lines.length === 1) {
           return parseInt(lines[0], 10) === hoveredLineNumber;
-        } else { return false;}
+        } else {
+          return false;
+        }
       });
-      console.log('Matching nodes for line', matchingNodes);
-      setHighlightedNodes(new Set(matchingNodes.map(node => node.id)));
+      setHighlightedNodes(new Set(matchingNodes.map((node) => node.id)));
     } else {
       setHighlightedNodes(new Set());
     }
   }, [hoveredLineNumber, graphData]);
 
-  //     if (matchingNodes.length > 0) {
-  //       setHoveredNodeId(matchingNodes[0].id);
-  //       setAnimatedNodes(new Set(matchingNodes.map(node => node.id)));
-        
-  //       // Focus on the first matching node
-  //       if (fgRef.current) {
-  //         const node = matchingNodes[0];
-  //         fgRef.current.centerAt(node.x, node.y, 1000);
-  //         fgRef.current.zoom(3, 1000);
-  //       }
-  //     }
-  //   } else {
-  //     setHoveredNodeId(null);
-  //     setAnimatedNodes(new Set());
-      
-  //     // Reset zoom when not hovering
-  //     if (fgRef.current) {
-  //       fgRef.current.zoom(1, 1000);
-  //     }
-  //   }
-  // }, [hoveredLineNumber, graphData]);
-
   const paintRing = (node, ctx) => {
     // const isHighlighted = node.id === hoveredNodeId;
     const isHighlighted = highlightedNodes.has(node.id);
     const scale = isHighlighted ? 2.2 : 1.8;
-    
+
     ctx.beginPath();
     ctx.arc(node.x, node.y, 4 * scale, 0, 2 * Math.PI, false);
 
@@ -73,10 +55,10 @@ export default function Graph({
       ctx.strokeStyle = '#000000';
       ctx.lineWidth = 1;
     }
-    
+
     ctx.fill();
     ctx.stroke();
-  
+
     if (isHighlighted) {
       ctx.shadowColor = '#FF4500';
       ctx.shadowBlur = 15;
@@ -86,7 +68,6 @@ export default function Graph({
       ctx.shadowBlur = 0; // Reset shadow for other nodes
     }
   };
-
 
   const getNodeSize = (node) => {
     if (animatedNodes.has(node.id)) {
@@ -103,7 +84,7 @@ export default function Graph({
       onNodeLeave();
       return;
     }
-    
+
     // Convert code_lines to array of line numbers
     const lines = node.code_lines.split('-');
     if (lines.length === 1) {
@@ -113,17 +94,17 @@ export default function Graph({
       const end = parseInt(lines[1], 10);
       // Create array of all lines in range
       const lineRange = Array.from(
-        { length: end - start + 1 }, 
+        { length: end - start + 1 },
         (_, i) => start + i
       );
       // Send all lines at once
-      lineRange.forEach(line => onNodeHover(line));
+      lineRange.forEach((line) => onNodeHover(line));
     }
   };
 
   const handleNodeClick = (node) => {
     if (!node) return;
-    
+
     // Convert code_lines to array of line numbers
     const lines = node.code_lines.split('-');
     if (lines.length === 1) {
@@ -138,7 +119,7 @@ export default function Graph({
 
   return (
     <>
-    {/* Custom CSS for larger tooltips */}
+      {/* Custom CSS for larger tooltips */}
       <style jsx global>{`
         .float-tooltip-kap {
           font-size: 19px !important;
@@ -149,29 +130,33 @@ export default function Graph({
           line-height: 1.4 !important;
           white-space: pre-wrap !important;
           z-index: 1000 !important;
-          background: rgba(0, 0, 0, 0.65) !important;  
+          background: rgba(0, 0, 0, 0.65) !important;
         }
       `}</style>
-    <div className="flex flex-col h-screen bg-gray-200 p-5 mt-6 border-blue-700 border-[3px] rounded-xl">
-      <h1 className="text-2xl font-bold text-center mb-4 text-black">Graph Visualizer</h1>
-      <div className="flex-1 overflow-hidden rounded shadow-md bg-white">
-        <ForceGraph
-          ref={fgRef}
-          nodeCanvasObject={paintRing}
-          nodeCanvasObjectMode={node => 'before'}
-          graphData={graphData}
-          nodeLabel={(node) => `Lines: ${node.code_lines}\n${node.label}\nNode Type: ${node.node_type}`}
-          linkLabel={(link) => link.edge_type}
-          nodeAutoColorBy="group"
-          cooldownTicks={100}
-          d3AlphaDecay={0.02}
-          d3VelocityDecay={0.3}
-          onNodeHover={(node) => handleNodeHover(node)}
-          onNodeOut={() => onNodeLeave()}
-          onNodeClick={(node) => handleNodeClick(node)}
-        />
+      <div className="mt-6 flex h-screen flex-col rounded-xl border-[3px] border-blue-700 bg-gray-200 p-5">
+        <h1 className="mb-4 text-center text-2xl font-bold text-black">
+          Graph Visualizer
+        </h1>
+        <div className="flex-1 overflow-hidden rounded bg-white shadow-md">
+          <ForceGraph
+            ref={fgRef}
+            nodeCanvasObject={paintRing}
+            nodeCanvasObjectMode={(node) => 'before'}
+            graphData={graphData}
+            nodeLabel={(node) =>
+              `Lines: ${node.code_lines}\n${node.label}\nNode Type: ${node.node_type}`
+            }
+            linkLabel={(link) => link.edge_type}
+            nodeAutoColorBy="group"
+            cooldownTicks={100}
+            d3AlphaDecay={0.02}
+            d3VelocityDecay={0.3}
+            onNodeHover={(node) => handleNodeHover(node)}
+            onNodeOut={() => onNodeLeave()}
+            onNodeClick={(node) => handleNodeClick(node)}
+          />
+        </div>
       </div>
-    </div>
-  </>
+    </>
   );
 }
