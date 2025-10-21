@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
 import React, { ReactElement } from 'react';
-import { useAuth } from "react-oidc-context";
+import { useAuth } from 'react-oidc-context';
 
 export default function AuthControls() {
   const auth = useAuth();
@@ -20,12 +20,16 @@ export default function AuthControls() {
   if (auth.isAuthenticated) {
     return (
       <div>
-        <p>Hello, <strong>{auth.user?.profile.email}</strong></p>
+        <p>
+          Hello, <strong>{auth.user?.profile.email}</strong>
+        </p>
         <button onClick={() => auth.signoutRedirect()}>Sign Out</button>
       </div>
-    )  as ReactElement;
+    ) as ReactElement;
   }
 
   // Display sign-in button if not authenticated
-  return <button onClick={() => auth.signinRedirect()}>Log In | Sign Up</button>;
+  return (
+    <button onClick={() => auth.signinRedirect()}>Log In | Sign Up</button>
+  );
 }

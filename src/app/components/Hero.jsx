@@ -1,49 +1,49 @@
-import * as React from "react";
+import * as React from 'react';
 
 export default function Hero() {
   return (
     <section
-      className="flex relative flex-col px-20 py-40 -mt-20 w-full min-h-[900px] max-md:px-5 max-md:py-24 max-md:max-w-full"
+      className="relative -mt-20 flex min-h-[900px] w-full flex-col px-20 py-40 max-md:max-w-full max-md:px-5 max-md:py-24"
       aria-labelledby="hero-title"
     >
-      <div className="flex z-0 flex-wrap justify-between w-full max-md:max-w-full">
-        <div className="flex flex-1 shrink justify-between items-center py-20 h-full basis-0 min-w-[240px] max-md:max-w-full">
-          <div className="flex flex-1 shrink gap-10 items-start self-stretch my-auto w-full basis-0 min-w-[240px] max-md:max-w-full">
-            <div className="flex flex-col flex-1 shrink px-4 w-full basis-0 bg-white bg-opacity-0 min-w-[240px] max-md:max-w-full">
-              <div className="flex flex-col w-full text-5xl font-bold tracking-tighter max-md:max-w-full max-md:text-4xl">
+      <div className="z-0 flex w-full flex-wrap justify-between max-md:max-w-full">
+        <div className="flex h-full min-w-[240px] flex-1 shrink basis-0 items-center justify-between py-20 max-md:max-w-full">
+          <div className="my-auto flex w-full min-w-[240px] flex-1 shrink basis-0 items-start gap-10 self-stretch max-md:max-w-full">
+            <div className="flex w-full min-w-[240px] flex-1 shrink basis-0 flex-col bg-white bg-opacity-0 px-4 max-md:max-w-full">
+              <div className="flex w-full flex-col text-5xl font-bold tracking-tighter max-md:max-w-full max-md:text-4xl">
                 <h1
                   id="hero-title"
-                  className="text-white leading-[64px] max-md:max-w-full max-md:text-4xl max-md:leading-[60px]"
+                  className="leading-[64px] text-white max-md:max-w-full max-md:text-4xl max-md:leading-[60px]"
                 >
                   Smart Contract
                   <br />
                   Vulnerability Detection
                 </h1>
                 <button
-                  className="flex flex-col mt-3 max-w-full leading-none text-center text-blue-600 rounded-[1000px] w-[296px] max-md:text-4xl hover:bg-blue-100 focus:bg-blue-100 focus:outline-none"
+                  className="mt-3 flex w-[296px] max-w-full flex-col rounded-[1000px] text-center leading-none text-blue-600 hover:bg-blue-100 focus:bg-blue-100 focus:outline-none max-md:text-4xl"
                   tabIndex={0}
                 >
-                  <div className="flex relative flex-col px-7 py-1 aspect-[4.111] rounded-[1000px] max-md:px-5 max-md:text-4xl">
+                  <div className="relative flex aspect-[4.111] flex-col rounded-[1000px] px-7 py-1 max-md:px-5 max-md:text-4xl">
                     <img
                       loading="lazy"
                       src="https://cdn.builder.io/api/v1/image/assets/TEMP/441e1b1fe98db7380ed3acbac2c90714c14eed544501cd79e72dbe5ce4849062?placeholderIfAbsent=true&apiKey=8195f1a9ffb1413790dbaff62dc171be"
                       alt=""
-                      className="object-cover absolute inset-0 size-full"
+                      className="absolute inset-0 size-full object-cover"
                     />
                     SCO Demo
                   </div>
                 </button>
               </div>
-              <div className="flex flex-col self-start mt-12 max-md:mt-10">
+              <div className="mt-12 flex flex-col self-start max-md:mt-10">
                 <button
-                  className="flex overflow-hidden flex-col justify-center items-center self-start text-base font-bold text-center text-white bg-white bg-opacity-0 hover:text-blue-300 focus:text-blue-300 focus:outline-none"
+                  className="flex flex-col items-center justify-center self-start overflow-hidden bg-white bg-opacity-0 text-center text-base font-bold text-white hover:text-blue-300 focus:text-blue-300 focus:outline-none"
                   tabIndex={0}
                 >
-                  <div className="gap-1.5 self-stretch underline bg-white bg-opacity-0 decoration-auto decoration-solid underline-offset-auto">
+                  <div className="gap-1.5 self-stretch bg-white bg-opacity-0 underline decoration-solid decoration-auto underline-offset-auto">
                     <span className="text-white underline">More details</span>
                   </div>
                 </button>
-                <p className="mt-4 text-lg tracking-tight leading-7 text-neutral-300">
+                <p className="mt-4 text-lg leading-7 tracking-tight text-neutral-300">
                   This is the quick vulnerability detection for
                   <br />7 types of bug in smart contract.
                 </p>
@@ -51,13 +51,13 @@ export default function Hero() {
             </div>
           </div>
         </div>
-        <div className="flex shrink-0 self-start h-[771px] min-w-[240px] w-[704px]" />
+        <div className="flex h-[771px] w-[704px] min-w-[240px] shrink-0 self-start" />
       </div>
-      <div className="flex absolute right-0 bottom-0 z-0 flex-col px-20 py-28 h-[900px] w-[1440px] max-md:px-5 max-md:pt-24 max-md:max-w-full">
-        <div className="shrink-0 w-px h-[212px]" />
-        <div className="z-10 shrink-0 self-center mt-0 w-px h-[212px]" />
-        <div className="z-10 shrink-0 self-end mt-0 w-px h-[212px]" />
-        <div className="shrink-0 mt-12 ml-80 w-px h-[212px] max-md:mt-10 max-md:ml-2.5" />
+      <div className="absolute bottom-0 right-0 z-0 flex h-[900px] w-[1440px] flex-col px-20 py-28 max-md:max-w-full max-md:px-5 max-md:pt-24">
+        <div className="h-[212px] w-px shrink-0" />
+        <div className="z-10 mt-0 h-[212px] w-px shrink-0 self-center" />
+        <div className="z-10 mt-0 h-[212px] w-px shrink-0 self-end" />
+        <div className="ml-80 mt-12 h-[212px] w-px shrink-0 max-md:ml-2.5 max-md:mt-10" />
       </div>
     </section>
   );
