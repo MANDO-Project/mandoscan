@@ -11,12 +11,9 @@ export default function SmartContractVulnerability() {
   const [selectedFile, setSelectedFile] = useState('');
   const [sourceCode, setSourceCode] = useState('');
   const [reportMessages, setReportMessages] = useState({});
-  const [bugReport, setBugReport] = useState(null);
   const [coarseGrainedReport, setCoarseGrainedReport] = useState(null);
   const [fineGrainedReport, setFineGrainedReport] = useState(null);
   const [hoveredLineNumber, setHoveredLineNumber] = useState(null);
-
-  const [highlightLines, setHighlightLines] = useState([2, 3, 6]);
   const [graphData, setGraphData] = useState(null);
   const [hoveredLinesFromGraph, setHoveredLinesFromGraph] = useState([]);
   const [scrollToLine, setScrollToLine] = useState(null);

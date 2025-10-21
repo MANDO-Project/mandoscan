@@ -16,8 +16,6 @@ export default function Graph({
 }) {
   const fgRef = useRef();
   const [highlightedNodes, setHighlightedNodes] = useState(null);
-  const [hoveredNodeId, setHoveredNodeId] = useState(null);
-  const [animatedNodes, setAnimatedNodes] = useState(new Set());
 
   // Find nodes that contain the hovered line number
   useEffect(() => {
@@ -39,7 +37,6 @@ export default function Graph({
   }, [hoveredLineNumber, graphData]);
 
   const paintRing = (node, ctx) => {
-    // const isHighlighted = node.id === hoveredNodeId;
     const isHighlighted = highlightedNodes.has(node.id);
     const scale = isHighlighted ? 2.2 : 1.8;
 
@@ -67,16 +64,6 @@ export default function Graph({
       ctx.stroke();
       ctx.shadowBlur = 0; // Reset shadow for other nodes
     }
-  };
-
-  const getNodeSize = (node) => {
-    if (animatedNodes.has(node.id)) {
-      // Dynamic size based on time for breathing effect
-      const time = Date.now() * 0.008;
-      const breathe = 1 + Math.sin(time) * 0.3;
-      return 15 * breathe;
-    }
-    return 4;
   };
 
   const handleNodeHover = (node) => {
