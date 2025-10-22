@@ -7,12 +7,12 @@ import { Select, SelectItem } from "@heroui/react";
 import {Button, ButtonGroup} from "@heroui/button";
 
 
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import DetectionForm from "./components/DetectionForm";
-import VulnerabilityGrid from "./components/VulnerabilityGrid";
-import CodeViewer from './components/ConsoleCode'
-import Graph from './components/Graph'
+import Header from "@/components/header/Header";
+import Hero from "@/components/Hero";
+import DetectionForm from "@/components/DetectionForm";
+import VulnerabilityGrid from "@/components/VulnerabilityGrid";
+import CodeViewer from '@/components/ConsoleCode'
+import Graph from '@/components/Graph'
 import { c } from "react-syntax-highlighter/dist/esm/languages/hljs";
 import { hover } from "framer-motion";
 // import FileSelector from "./components/FileSelector";

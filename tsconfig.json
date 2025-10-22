@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -31,8 +31,9 @@
     "next-env.d.ts",
     "mando-tool/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-  ],
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+, "src/app/dashboard/page.tsx.bk", "src/svg.d.ts.bk"  ],
   "exclude": [
     "node_modules"
   ]

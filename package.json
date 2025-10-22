@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,10 +11,15 @@
   "dependencies": {
     "@heroui/navbar": "^2.2.9",
     "@heroui/react": "^2.6.14",
+    "@react-jvectormap/core": "^1.0.4",
+    "@react-jvectormap/world": "^1.1.2",
+    "@svgr/webpack": "^8.1.0",
+    "apexcharts": "^4.7.0",
     "framer-motion": "^11.18.1",
     "next": "15.1.5",
     "oidc-client-ts": "^3.3.0",
     "react": "^19.0.0",
+    "react-apexcharts": "^1.8.0",
     "react-dom": "^19.0.0",
     "react-force-graph": "^1.46.0",
     "react-force-graph-3d": "^1.26.0",
@@ -23,12 +28,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "24.7.2",
     "@types/react": "19.2.2",
     "eslint": "^9",
     "eslint-config-next": "15.1.5",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.14",
     "typescript": "5.9.3"
   }
 }
