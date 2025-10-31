@@ -21,10 +21,10 @@ export const EcommerceMetrics = () => {
               18
             </h4>
           </div>
-          <Badge color="success">
+          {/* <Badge color="success">
             <BoxIconLine />
             Avg. 90%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
       {/* <!-- Metric Item End --> */}
@@ -45,7 +45,7 @@ export const EcommerceMetrics = () => {
           </div>
 
           <Badge color="error">
-            <GroupIcon className="text-error-500" />
+            <BoxIconLine className="text-error-500"/>
             20%
           </Badge>
         </div>
