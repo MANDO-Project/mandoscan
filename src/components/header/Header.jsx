@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from 'next/image';
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@heroui/react";
-import AuthControls from "../AuthControls";
+import AuthControls from "@/components/auth/AuthControls";
 
 export const AcmeLogo = () => {
   return (
@@ -16,13 +16,13 @@ export const AcmeLogo = () => {
     //   />
     // </svg>
     <Image
-            src="./mando_logo.svg"
+            src="/mando_logo.svg"
             alt="MANDO Logo"
             // fill='true'
             width="900"
             height="900"
             viewBox="0 0 0 0"
-            layout="intrinsic"
+            className="intrinsic"
           />
   );
 };
