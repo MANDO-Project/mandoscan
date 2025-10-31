@@ -13,6 +13,27 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   setIsOpen((prev) => !prev);
 }
 
+async function handleSignOut() {
+    try {
+      // Clear authentication tokens/session
+      // Clear localStorage/sessionStorage
+      localStorage.removeItem('accessToken');
+      sessionStorage.clear();
+      
+      // Clear cookies if using cookie-based auth
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      
+      // Redirect to home or login page
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  }
+
   function closeDropdown() {
     setIsOpen(false);
   }
@@ -145,7 +166,8 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
           </li>
         </ul>
         <Link
-          href="/signin"
+          href="/"
+          onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <svg
