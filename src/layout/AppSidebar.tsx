@@ -30,24 +30,24 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Solidity", path: "/", pro: false }],
+    subItems: [{ name: "Solidity", path: "/dashboard/solidity", pro: false }],
   },
   {
     icon: <CalenderIcon />,
     name: "API references",
-    path: "/calendar",
+    path: "/dashboard/calendar",
   },
   {
     icon: <UserCircleIcon />,
     name: "User Profile",
-    path: "/profile",
+    path: "/dashboard/profile",
   },
 
   {
-    name: "API keys",
     icon: <ListIcon />,
-    subItems: [{ name: "Personal Access Tokens", path: "/form-elements", pro: false },
-      { name: "Organization Access Tokens", path: "/form-elements", pro: false }
+    name: "API keys",
+    subItems: [{ name: "Personal Access Tokens", path: "/dashboard/form-elements", pro: false },
+      { name: "Organization Access Tokens", path: "/dashboard/form-elements", pro: false }
     ],
   },
   // {
@@ -69,7 +69,7 @@ const othersItems: NavItem[] = [
   {
     icon: <PieChartIcon />,
     name: "Contact us",
-    path: "/contact_us",
+    path: "/dashboard/contact_us",
   },
   {
     icon: <BoxCubeIcon />,
@@ -80,7 +80,7 @@ const othersItems: NavItem[] = [
   {
     icon: <PlugInIcon />,
     name: "Upgrade plan",
-    path: '/upgrade_plan',
+    path: '/dashboard/upgrade_plan',
   },
 ];
 
