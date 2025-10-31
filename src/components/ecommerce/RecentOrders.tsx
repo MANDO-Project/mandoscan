@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -7,95 +9,69 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-// Define the TypeScript interface for the table rows
-interface Product {
-  id: number; // Unique identifier for each product
-  name: string; // Product name
-  variants: string; // Number of variants (e.g., "1 Variant", "2 Variants")
-  category: string; // Category of the product
-  cost: string; // cost of the product (as a string with currency symbol)
-  // status: string; // Status of the product
-  image: string; // URL or path to the product image
-  // status: "Delivered" | "Pending" | "Canceled"; // Status of the product
-  status: "Low" | "Moderate" | "High" | "Severe" | "Critical"; // Status of the product
-
+// Define the TypeScript interface for uploaded files
+interface UploadedFile {
+  id: string;
+  fileName: string;
+  uploadDate: string;
+  fileSize: number;
+  status: string;
 }
 
-// Define the table data using the interface
-const tableData: Product[] = [
-  {
-    id: 1,
-    name: "Access Control",
-    variants: "2 Variants",
-    category: "Solidity",
-    cost: "$1",
-    status: "Low",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  },
-  {
-    id: 2,
-    name: "Arithmetic",
-    variants: "1 Variant",
-    category: "Solidity",
-    cost: "$1",
-    status: "Moderate",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  },
-  {
-    id: 3,
-    name: "Denial of Service",
-    variants: "2 Variants",
-    category: "Solidity",
-    cost: "$1",
-    status: "High",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  },
-  {
-    id: 4,
-    name: "Front Running",
-    variants: "2 Variants",
-    category: "Solidity",
-    cost: "$2",
-    status: "Severe",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  },
-  {
-    id: 5,
-    name: "Reentrancy",
-    variants: "1 Variant",
-    category: "Solidity",
-    cost: "$1",
-    status: "Severe",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  },
-  {
-    id: 6,
-    name: "Time Manipulation",
-    variants: "1 Variant",
-    category: "Solidity",
-    cost: "$1",
-    status: "Critical",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  },
-  {
-    id: 7,
-    name: "Unchecked Low Level Calls",
-    variants: "1 Variant",
-    category: "Solidity",
-    cost: "$2",
-    status: "Low",
-    image: "/images/icons/information.svg", // Replace with actual image URL
-  }
-];
+// Define props interface
+interface RecentOrdersProps {
+  uploadedFiles?: UploadedFile[];
+}
 
-export default function RecentOrders() {
+export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) {
+  const router = useRouter();
+
+  // Format file size
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  // Format date
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  // Get badge color based on status
+  const getBadgeColor = (status: string): "success" | "warning" | "error" | "info" => {
+    switch (status.toLowerCase()) {
+      case 'scanned':
+        return 'success';
+      case 'uploaded':
+        return 'info';
+      case 'scan failed':
+        return 'error';
+      default:
+        return 'warning';
+    }
+  };
+
+  // Handle row click to navigate to detail page
+  const handleRowClick = (fileId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    console.log('Navigating to:', `/dashboard/solidity/${fileId}`);
+    router.push(`/dashboard/solidity/${fileId}`);
+  };
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Recent Scans
+            Recent Uploads
           </h3>
         </div>
 
@@ -152,81 +128,81 @@ export default function RecentOrders() {
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Vulnerabilties
+                File name
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Category
+                Upload Date
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                cost
+                File Size
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Severity
+                Status
               </TableCell>
             </TableRow>
           </TableHeader>
 
           {/* Table Body */}
-
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map((product) => (
-              <TableRow key={product.id} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <Image
-                        width={50}
-                        height={50}
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.name}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.name}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {product.variants}
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.category}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.cost}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === "Low"
-                        ? "success"
-                        : product.status === "Moderate"
-                        ? "primary"
-                        : product.status === "High"
-                        ? "error"
-                        : product.status === "Severe"
-                        ? "warning"
-                        : "dark"
-                    }
-                  >
-                    {product.status}
-                  </Badge>
+            {!uploadedFiles || uploadedFiles.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="py-8 text-center">
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No files uploaded yet
+                  </p>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              uploadedFiles.map((file) => (
+                <TableRow 
+                  key={file.id} 
+                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
+                  onClick={(e) => handleRowClick(file.id, e)}
+                >
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
+                        <Image
+                          width={50}
+                          height={50}
+                          src="/images/icons/contract.svg"
+                          className="h-[50px] w-[50px]"
+                          alt={file.fileName}
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {file.fileName}
+                        </p>
+                        <span className="text-gray-500 text-theme-xs dark:text-gray-400">
+                          ID: {file.id.substring(0, 8)}...
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {formatDate(file.uploadDate)}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {formatFileSize(file.fileSize)}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <Badge size="sm" color={getBadgeColor(file.status)}>
+                      {file.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
