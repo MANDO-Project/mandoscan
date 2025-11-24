@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
 
     // Get API base URL from environment variable
     const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
+    console.log('Using SCAN_API_BASE_URL:', apiBaseUrl);
 
     // Call external API to get files list
     const apiUrl = `${apiBaseUrl}/v1.0.0/vulnerability/detection/files?page=${page}&page_size=${pageSize}`;
