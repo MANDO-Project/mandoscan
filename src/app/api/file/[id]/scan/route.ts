@@ -19,7 +19,7 @@ export async function POST(
     const { id } = await params;
 
     // Get API base URL from environment variable
-    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
+    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
 
     // Trigger scan via external API
     const scanResponse = await fetch(

@@ -18,10 +18,10 @@ export async function GET(
     const { id } = await params;
 
     // Get API base URL from environment variable
-    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
+    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
 
-    // Fetch graph data from external API
-    const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}/graph`, {
+    // First, get file metadata to retrieve the result_file_url
+    const fileResponse = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -29,15 +29,33 @@ export async function GET(
       },
     });
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return NextResponse.json({ error: 'Graph data not found' }, { status: 404 });
+    if (!fileResponse.ok) {
+      if (fileResponse.status === 404) {
+        return NextResponse.json({ error: 'File not found' }, { status: 404 });
       }
-      return NextResponse.json({ error: 'Failed to fetch graph data' }, { status: response.status });
+      return NextResponse.json({ error: 'Failed to fetch file metadata' }, { status: fileResponse.status });
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    const fileData = await fileResponse.json();
+    const resultFileUrl = fileData.result_file_url;
+
+    if (!resultFileUrl) {
+      return NextResponse.json({ error: 'Scan results not available yet' }, { status: 404 });
+    }
+
+    // Fetch the scan results from S3 URL
+    const s3Response = await fetch(resultFileUrl);
+    
+    if (!s3Response.ok) {
+      return NextResponse.json({ error: 'Failed to fetch scan results from S3' }, { status: s3Response.status });
+    }
+
+    const scanResults = await s3Response.json();
+    
+    // Extract graph data from scan results
+    const graphData = scanResults.graph || scanResults.control_flow_graph || scanResults;
+    
+    return NextResponse.json(graphData);
   } catch (error: any) {
     console.error('Error fetching graph data:', error);
     

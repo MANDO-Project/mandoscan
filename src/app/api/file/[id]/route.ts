@@ -18,7 +18,7 @@ export async function GET(
     const { id } = await params;
 
     // Get API base URL from environment variable
-    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
+    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
 
     // Fetch file details from external API
     const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}`, {
@@ -59,6 +59,7 @@ export async function GET(
       content: data.content || data.source_code || data.code,
       scanData: data.scanData || data.scan_results || data.results,
       status: data.status,
+      result_file_url: data.result_file_url,
     });
   } catch (error: any) {
     console.error('Error fetching file:', error);
