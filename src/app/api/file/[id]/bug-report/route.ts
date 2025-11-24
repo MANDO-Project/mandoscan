@@ -39,18 +39,49 @@ export async function GET(
     const fileData = await fileResponse.json();
     const resultFileUrl = fileData.result_file_url;
 
+    console.log('File metadata:', { id, resultFileUrl, status: fileData.status });
+
     if (!resultFileUrl) {
-      return NextResponse.json({ error: 'Scan results not available yet' }, { status: 404 });
+      return NextResponse.json({ error: 'Scan results not available yet. Please run scan first.' }, { status: 404 });
     }
 
     // Fetch the scan results from S3 URL
-    const s3Response = await fetch(resultFileUrl);
+    console.log('Fetching scan results from S3:', resultFileUrl);
+    const s3Response = await fetch(resultFileUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    
+    console.log('S3 response status:', s3Response.status, s3Response.statusText);
+    console.log('S3 response headers:', Object.fromEntries(s3Response.headers.entries()));
     
     if (!s3Response.ok) {
-      return NextResponse.json({ error: 'Failed to fetch scan results from S3' }, { status: s3Response.status });
+      const errorText = await s3Response.text();
+      console.error('S3 fetch failed:', errorText);
+      return NextResponse.json({ 
+        error: 'Failed to fetch scan results from S3',
+        details: `Status: ${s3Response.status}, URL: ${resultFileUrl}`,
+        message: errorText.substring(0, 200)
+      }, { status: s3Response.status });
     }
 
-    const scanResults = await s3Response.json();
+    const contentType = s3Response.headers.get('content-type');
+    console.log('S3 content type:', contentType);
+    
+    let scanResults;
+    try {
+      const textResponse = await s3Response.text();
+      console.log('S3 response preview:', textResponse.substring(0, 200));
+      scanResults = JSON.parse(textResponse);
+    } catch (parseError: any) {
+      console.error('Failed to parse S3 response as JSON:', parseError);
+      return NextResponse.json({ 
+        error: 'Invalid scan results format',
+        details: parseError.message
+      }, { status: 500 });
+    }
     
     // Extract bug report data from scan results
     const bugReport = {
