@@ -7,12 +7,12 @@ const ForceGraph = dynamic(() => import('react-force-graph').then(mod => mod.For
 export default function Graph({
   graphData, 
   hoveredLineNumber = null, 
-  onNodeHover = () => {},
+  onNodeHover = (lineNumber) => {},
   onNodeLeave = () => {},
-  onNodeClick = () => {}
+  onNodeClick = (lineNumber) => {}
 }) {
   const fgRef = useRef();
-  const [highlightedNodes, setHighlightedNodes] = useState(null);
+  const [highlightedNodes, setHighlightedNodes] = useState(new Set());
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [animatedNodes, setAnimatedNodes] = useState(new Set());
 

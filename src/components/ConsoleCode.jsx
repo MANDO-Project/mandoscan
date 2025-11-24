@@ -10,7 +10,7 @@ const CodeViewer = ({
   code,
   fineGrainedReport = [],
   reportMessages = {},
-  onLineHover = () => {},
+  onLineHover = (lineNumber) => {},
   onLineLeave = () => {},
   hoveredLinesFromGraph = [],
   scrollToLine = null,
@@ -19,6 +19,7 @@ const CodeViewer = ({
 
   const [hoveredLine, setHoveredLine] = React.useState(null);
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+  const [linePosition, setLinePosition] = React.useState({ top: 0, left: 0, width: 0 });
   const containerRef = React.useRef(null);
   const codeRef = React.useRef(null);
   React.useEffect(() => {
@@ -91,8 +92,23 @@ const CodeViewer = ({
     }
   };
 
-  const handleLineHover = (lineNumber) => {
+  const handleLineHover = (lineNumber, event) => {
     setHoveredLine(lineNumber);
+    
+    // Get the absolute viewport position of the hovered line and code container
+    if (event && event.currentTarget && codeRef.current) {
+      const lineRect = event.currentTarget.getBoundingClientRect();
+      const codeContainerRect = codeRef.current.getBoundingClientRect();
+      
+      // Use viewport coordinates for fixed positioning
+      // Center the popup horizontally within the code container
+      setLinePosition({
+        top: lineRect.top, // Absolute position in viewport
+        left: codeContainerRect.left + codeContainerRect.width / 2, // Center of code container
+        width: lineRect.width
+      });
+    }
+    
     onLineHover(lineNumber); // Notify parent component
   };
 
@@ -183,7 +199,7 @@ const CodeViewer = ({
               style,
               className: isHighlightedFromGraph ? 'highlight-from-graph' : '',
               'data-line-number': lineNumber,
-              onMouseEnter: isHighlighted ? () => handleLineHover(lineNumber) : undefined,
+              onMouseEnter: isHighlighted ? (e) => handleLineHover(lineNumber, e) : undefined,
               onMouseLeave: isHighlighted ? () => handleLineLeave() : undefined,
             };
           }}
@@ -194,10 +210,11 @@ const CodeViewer = ({
         {/* Popup Message Box */}
         {hoveredLine && (
           <div 
-            className="fixed z-50 px-3 py-2 text-xl bg-gray-800 text-white rounded-lg shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-full"
+            className="fixed z-[9999] px-3 py-2 text-xl bg-gray-800 text-white rounded-lg shadow-xl pointer-events-none border-2 border-gray-600"
             style={{
-              left: mousePosition.x,
-              top: mousePosition.y - 10,
+              left: `${linePosition.left}px`,
+              top: `${linePosition.top}px`,
+              transform: 'translate(-50%, calc(-100% - 15px))',
               animation: 'fadeInScale 0.2s ease-out forwards',
               minWidth: '600px',
               maxWidth: '600px'
@@ -210,9 +227,8 @@ const CodeViewer = ({
                 </li>
               ))}
             </ul>
-            {/* {getMessageForLine(hoveredLine)} */}
             {/* Arrow pointing down */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-transparent border-t-gray-800"></div>
           </div>
         )}
       </div>

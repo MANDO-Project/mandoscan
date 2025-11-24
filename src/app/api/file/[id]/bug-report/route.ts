@@ -1,44 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
-    const dataDir = path.join(process.cwd(), 'data', id);
+    // Extract JWT token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      );
+    }
+    
+    const token = authHeader.substring(7);
+    const { id } = await params;
 
-    // Check if directory exists
-    if (!existsSync(dataDir)) {
-      return NextResponse.json({ error: 'Directory not found' }, { status: 404 });
+    // Get API base URL from environment variable
+    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
+
+    // Fetch bug report from external API
+    const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}/bug-report`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return NextResponse.json({ error: 'Bug report not found' }, { status: 404 });
+      }
+      return NextResponse.json({ error: 'Failed to fetch bug report' }, { status: response.status });
     }
 
-    // Read metadata to get filename
-    const metadataPath = path.join(dataDir, 'metadata.json');
-    if (!existsSync(metadataPath)) {
-      return NextResponse.json({ error: 'Metadata not found' }, { status: 404 });
-    }
-    const metadata = JSON.parse(await readFile(metadataPath, 'utf-8'));
-
-    // Get filename without extension
-    const fileCore = metadata.fileName.substring(0, metadata.fileName.length - 4);
-
-    // Look for bug report file with pattern bug_report_[filename].json
-    const bugReportFileName = `bug_report_${fileCore}.json`;
-    const bugReportPath = path.join(dataDir, bugReportFileName);
-
-    if (!existsSync(bugReportPath)) {
-      return NextResponse.json({ error: 'Bug report file not found' }, { status: 404 });
-    }
-
-    const bugReportData = JSON.parse(await readFile(bugReportPath, 'utf-8'));
-
-    return NextResponse.json(bugReportData);
-  } catch (error) {
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch (error: any) {
     console.error('Error fetching bug report data:', error);
+    
+    if (error.cause?.code === 'ECONNREFUSED' || error.message.includes('fetch failed')) {
+      return NextResponse.json(
+        { error: 'Cannot connect to external API' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Failed to fetch bug report data' }, { status: 500 });
   }
 }

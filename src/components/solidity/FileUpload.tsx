@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from "react";
+import { useAuth } from "react-oidc-context";
 
 interface FileUploadProps {
   onFileUploaded: (file: {
@@ -9,27 +10,14 @@ interface FileUploadProps {
     uploadDate: string;
     fileSize: number;
     status: string;
+    estimatedCost: number;
   }) => void;
   onStatusUpdate: (id: string, status: string) => void;
 }
 
 export default function FileUpload({ onFileUploaded, onStatusUpdate }: FileUploadProps) {
+  const auth = useAuth();
   const [isUploading, setIsUploading] = useState(false);
-
-  // Convert file content to base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const result = reader.result as string;
-        // Remove the data:*/*;base64, prefix
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -41,15 +29,26 @@ export default function FileUpload({ onFileUploaded, onStatusUpdate }: FileUploa
       return;
     }
 
+    // Check authentication
+    const token = auth.user?.access_token;
+    if (!token) {
+      alert('Please log in to upload files');
+      return;
+    }
+
     setIsUploading(true);
 
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('estimated_cost', '1');
 
-      // Upload file to local storage
+      // Upload file to backend API
       const response = await fetch('/api/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -58,46 +57,20 @@ export default function FileUpload({ onFileUploaded, onStatusUpdate }: FileUploa
       if (response.ok) {
         const newFile = {
           id: data.id,
-          fileName: file.name,
-          uploadDate: new Date().toISOString(),
-          fileSize: file.size,
-          status: 'Uploaded',
+          fileName: data.file_name || file.name,
+          uploadDate: data.upload_date || new Date().toISOString(),
+          fileSize: data.file_size || file.size,
+          status: data.status === 'uploaded' ? 'pending' : data.status,
+          estimatedCost: data.estimated_cost || data.estimatedCost || 1.0,
         };
         
         // Notify parent component of successful upload
         onFileUploaded(newFile);
-
-        // Convert file content to base64
-        const base64Content = await fileToBase64(file);
-
-        // Call REST API for scanning
-        try {
-          // TODO: Update API_URL and headers as needed
-          const scanResponse = await fetch('http://localhost:5555/v1.0.0/vulnerability/detection/nodetype?model_type=transformer', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'key': 'MqQVfJ6Fq1umZnUI7ZuaycciCjxi3gM0'
-            },
-            body: JSON.stringify({
-              contract_name: file.name,
-              ID: data.id,
-              smart_contract: base64Content,
-            }),
-          });
-
-          const scanData = await scanResponse.json();
-
-          if (scanResponse.ok) {
-            // Update status to 'Scanned'
-            onStatusUpdate(data.id, 'Scanned');
-          } else {
-            console.error('Scan failed:', scanData);
-            onStatusUpdate(data.id, 'Scan Failed');
-          }
-        } catch (scanError) {
-          console.error('Error calling scan API:', scanError);
-          onStatusUpdate(data.id, 'Scan Failed');
+        
+        if (data.status === 'uploaded') {
+          alert('File uploaded successfully! Click "Scan" to start the analysis.');
+        } else {
+          alert('File uploaded successfully!');
         }
       } else {
         alert(`Upload failed: ${data.error}`);
@@ -137,7 +110,7 @@ export default function FileUpload({ onFileUploaded, onStatusUpdate }: FileUploa
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          {isUploading ? 'Uploading & Scanning...' : 'Choose File'}
+          {isUploading ? 'Uploading...' : 'Choose File'}
         </label>
         <input
           id="file-upload"

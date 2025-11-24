@@ -1,53 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
+    // Extract JWT token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      );
+    }
+    
+    const token = authHeader.substring(7);
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const estimatedCost = formData.get('estimated_cost') || '1';
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    // Generate unique ID for the upload using UUID4
-    const uniqueId = randomUUID();
+    // Get API base URL from environment variable
+    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
 
-    const dataDir = path.join(process.cwd(), 'data', uniqueId);
+    // Create new FormData to send to external API
+    const externalFormData = new FormData();
+    externalFormData.append('file', file);
+    externalFormData.append('estimated_cost', estimatedCost.toString());
 
-    // Create directory if it doesn't exist
-    if (!existsSync(dataDir)) {
-      await mkdir(dataDir, { recursive: true });
+    // Upload file to external API using direct upload endpoint
+    const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/upload/direct`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: externalFormData,
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Upload failed';
+      try {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        }
+      } catch (parseError) {
+        errorMessage = `Upload failed: ${response.status} ${response.statusText}`;
+      }
+      return NextResponse.json({ error: errorMessage }, { status: response.status });
     }
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const filePath = path.join(dataDir, file.name);
-    await writeFile(filePath, buffer);
-
-    // Save metadata
-    const metadata = {
-      id: uniqueId,
-      fileName: file.name,
-      uploadDate: new Date().toISOString(),
-      fileSize: file.size,
-      filePath: filePath,
-    };
-
-    const metadataPath = path.join(dataDir, 'metadata.json');
-    await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
-
+    const data = await response.json();
+    
     return NextResponse.json({ 
       success: true, 
-      id: uniqueId,
+      id: data.id || data.file_id,
+      estimatedCost: data.estimatedCost || data.estimated_cost || 1.0,
       message: 'File uploaded successfully' 
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error);
+    
+    if (error.cause?.code === 'ECONNREFUSED' || error.message.includes('fetch failed')) {
+      return NextResponse.json(
+        { error: 'Cannot connect to external API' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

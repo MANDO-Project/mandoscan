@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     distDir: 'mando-tool',
-    // output: 'export',
+    // output: 'export', // Commented out - app needs server-side features (API routes)
+    images: {
+        unoptimized: true,
+    },
 
     webpack(config) {
     config.module.rules.push({

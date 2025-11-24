@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -10,6 +11,7 @@ import {
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAuth } from "react-oidc-context";
 
 // Define the TypeScript interface for uploaded files
 interface UploadedFile {
@@ -18,15 +20,20 @@ interface UploadedFile {
   uploadDate: string;
   fileSize: number;
   status: string;
+  estimatedCost?: number;
+  errorMessage?: string;
 }
 
 // Define props interface
 interface RecentOrdersProps {
   uploadedFiles?: UploadedFile[];
+  onStatusUpdate?: (id: string, status: string) => void;
 }
 
-export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) {
+export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: RecentOrdersProps) {
   const router = useRouter();
+  const auth = useAuth();
+  const [scanning, setScanning] = React.useState<string | null>(null);
 
   // Format file size
   const formatFileSize = (bytes: number): string => {
@@ -50,20 +57,71 @@ export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) 
     switch (status.toLowerCase()) {
       case 'scanned':
         return 'success';
-      case 'uploaded':
-        return 'info';
-      case 'scan failed':
+      case 'pending':
+        return 'warning';
+      case 'failed':
         return 'error';
       default:
-        return 'warning';
+        return 'info';
     }
   };
 
-  // Handle row click to navigate to detail page
-  const handleRowClick = (fileId: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    console.log('Navigating to:', `/dashboard/solidity/${fileId}`);
-    router.push(`/dashboard/solidity/${fileId}`);
+  // Handle scan action for pending files
+  const handleScan = async (fileId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setScanning(fileId);
+
+    try {
+      const token = auth.user?.access_token;
+      if (!token) {
+        alert('Authentication required. Please log in.');
+        return;
+      }
+
+      const response = await fetch(`/api/file/${fileId}/scan`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Scan completed successfully!');
+        if (onStatusUpdate) {
+          onStatusUpdate(fileId, 'scanned');
+        }
+      } else {
+        alert(`Scan failed: ${data.error || 'Unknown error'}`);
+        if (onStatusUpdate) {
+          onStatusUpdate(fileId, 'failed');
+        }
+      }
+    } catch (error) {
+      console.error('Error scanning file:', error);
+      alert('Error scanning file');
+      if (onStatusUpdate) {
+        onStatusUpdate(fileId, 'failed');
+      }
+    } finally {
+      setScanning(null);
+    }
+  };
+
+  // Handle viewing error logs for failed files
+  const handleViewError = (errorMessage: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    alert(`Error details:\n\n${errorMessage || 'No error message available'}`);
+  };
+
+  // Handle row click to navigate to detail page (only for scanned files)
+  const handleRowClick = (file: UploadedFile, event: React.MouseEvent) => {
+    if (file.status.toLowerCase() === 'scanned') {
+      event.preventDefault();
+      console.log('Navigating to:', `/dashboard/solidity/${file.id}`);
+      router.push(`/dashboard/solidity/${file.id}`);
+    }
   };
 
   return (
@@ -146,7 +204,19 @@ export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) 
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
+                Cost
+              </TableCell>
+              <TableCell
+                isHeader
+                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              >
                 Status
+              </TableCell>
+              <TableCell
+                isHeader
+                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              >
+                Action
               </TableCell>
             </TableRow>
           </TableHeader>
@@ -155,7 +225,7 @@ export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {!uploadedFiles || uploadedFiles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="py-8 text-center">
+                <TableCell colSpan={6} className="py-8 text-center">
                   <p className="text-gray-500 dark:text-gray-400">
                     No files uploaded yet
                   </p>
@@ -165,8 +235,12 @@ export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) 
               uploadedFiles.map((file) => (
                 <TableRow 
                   key={file.id} 
-                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
-                  onClick={(e) => handleRowClick(file.id, e)}
+                  className={`transition-colors ${
+                    file.status.toLowerCase() === 'scanned' 
+                      ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02]' 
+                      : ''
+                  }`}
+                  onClick={(e) => handleRowClick(file, e)}
                 >
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
@@ -196,9 +270,41 @@ export default function RecentOrders({ uploadedFiles = [] }: RecentOrdersProps) 
                     {formatFileSize(file.fileSize)}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <span className="font-medium text-gray-800 dark:text-white">
+                      ${file.estimatedCost?.toFixed(2) || '1.00'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <Badge size="sm" color={getBadgeColor(file.status)}>
                       {file.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="py-3">
+                    {(file.status.toLowerCase() === 'pending' || file.status.toLowerCase() === 'uploaded') && (
+                      <button
+                        onClick={(e) => handleScan(file.id, e)}
+                        disabled={scanning === file.id}
+                        className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {scanning === file.id ? 'Scanning...' : 'Scan'}
+                      </button>
+                    )}
+                    {file.status.toLowerCase() === 'scanned' && (
+                      <button
+                        onClick={(e) => handleRowClick(file, e)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03] transition-colors"
+                      >
+                        View Details
+                      </button>
+                    )}
+                    {file.status.toLowerCase() === 'failed' && (
+                      <button
+                        onClick={(e) => handleViewError(file.errorMessage || 'No error message', e)}
+                        className="px-4 py-2 rounded-lg border border-red-300 text-red-700 text-sm font-medium hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/10 transition-colors"
+                      >
+                        View Error
+                      </button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

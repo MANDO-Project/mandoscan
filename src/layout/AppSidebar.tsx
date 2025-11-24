@@ -34,8 +34,8 @@ const navItems: NavItem[] = [
   },
   {
     icon: <CalenderIcon />,
-    name: "API references",
-    path: "/dashboard/calendar",
+    name: "API Reference",
+    path: "/dashboard/api-reference",
   },
   {
     icon: <UserCircleIcon />,
@@ -45,10 +45,8 @@ const navItems: NavItem[] = [
 
   {
     icon: <ListIcon />,
-    name: "API keys",
-    subItems: [{ name: "Personal Access Tokens", path: "/dashboard/form-elements", pro: false },
-      { name: "Organization Access Tokens", path: "/dashboard/form-elements", pro: false }
-    ],
+    name: "API Keys",
+    path: "/dashboard/api-keys",
   },
   // {
   //   name: "Tables",

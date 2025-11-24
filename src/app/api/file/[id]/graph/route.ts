@@ -1,44 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, readdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
-    const dataDir = path.join(process.cwd(), 'data', id);
+    // Extract JWT token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      );
+    }
+    
+    const token = authHeader.substring(7);
+    const { id } = await params;
 
-    // Check if directory exists
-    if (!existsSync(dataDir)) {
-      return NextResponse.json({ error: 'Directory not found' }, { status: 404 });
+    // Get API base URL from environment variable
+    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'http://localhost:5555';
+
+    // Fetch graph data from external API
+    const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}/graph`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return NextResponse.json({ error: 'Graph data not found' }, { status: 404 });
+      }
+      return NextResponse.json({ error: 'Failed to fetch graph data' }, { status: response.status });
     }
 
-    // Read metadata to get filename
-    const metadataPath = path.join(dataDir, 'metadata.json');
-    if (!existsSync(metadataPath)) {
-      return NextResponse.json({ error: 'Metadata not found' }, { status: 404 });
-    }
-    const metadata = JSON.parse(await readFile(metadataPath, 'utf-8'));
-
-    // Get filename without extension
-    const fileCore = metadata.fileName.substring(0, metadata.fileName.length - 4);
-
-    // Look for graph file with pattern graph_[filename].json
-    const graphFileName = `graph_${fileCore}.json`;
-    const graphPath = path.join(dataDir, graphFileName);
-
-    if (!existsSync(graphPath)) {
-      return NextResponse.json({ error: 'Graph file not found' }, { status: 404 });
-    }
-
-    const graphData = JSON.parse(await readFile(graphPath, 'utf-8'));
-
-    return NextResponse.json(graphData);
-  } catch (error) {
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch (error: any) {
     console.error('Error fetching graph data:', error);
+    
+    if (error.cause?.code === 'ECONNREFUSED' || error.message.includes('fetch failed')) {
+      return NextResponse.json(
+        { error: 'Cannot connect to external API' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Failed to fetch graph data' }, { status: 500 });
   }
 }

@@ -5,22 +5,36 @@ import CodeViewer from '@/components/ConsoleCode';
 import Graph from '@/components/Graph';
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "react-oidc-context";
 
 export default function SolidityDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const auth = useAuth();
   const fileId = params.id as string;
 
   const [sourceCode, setSourceCode] = useState('');
   const [fileName, setFileName] = useState('');
   const [reportMessages, setReportMessages] = useState({});
   const [fineGrainedReport, setFineGrainedReport] = useState(null);
+  const [coarseGrainedReport, setCoarseGrainedReport] = useState(null);
   const [hoveredLineNumber, setHoveredLineNumber] = useState(null);
   const [graphData, setGraphData] = useState(null);
   const [hoveredLinesFromGraph, setHoveredLinesFromGraph] = useState([]);
   const [scrollToLine, setScrollToLine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Bug type names corresponding to coarse_grained array indices
+  const bugTypes = [
+    'Access Control',
+    'Arithmetic',
+    'Denial of Service',
+    'Front Running',
+    'Reentrancy',
+    'Time Manipulation',
+    'Unchecked Low Level Calls'
+  ];
 
   useEffect(() => {
     if (fileId) {
@@ -32,8 +46,19 @@ export default function SolidityDetailPage() {
     try {
       setLoading(true);
       
+      const token = auth.user?.access_token;
+      if (!token) {
+        setError('Authentication required. Please log in.');
+        setLoading(false);
+        return;
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      
       // Fetch file metadata and content
-      const response = await fetch(`/api/file/${fileId}`);
+      const response = await fetch(`/api/file/${fileId}`, { headers });
       if (!response.ok) {
         throw new Error('File not found');
       }
@@ -42,23 +67,21 @@ export default function SolidityDetailPage() {
       setFileName(data.fileName);
       setSourceCode(data.content);
 
-      // Get filename without extension
-      const fileCore = data.fileName.substring(0, data.fileName.length - 4);
-
-      // Fetch bug report from bug_report_[filename].json
+      // Fetch bug report
       try {
-        const bugReportResponse = await fetch(`/api/file/${fileId}/bug-report`);
+        const bugReportResponse = await fetch(`/api/file/${fileId}/bug-report`, { headers });
         if (bugReportResponse.ok) {
           const bugReport = await bugReportResponse.json();
           setFineGrainedReport(bugReport.fine_grained);
+          setCoarseGrainedReport(bugReport.coarse_grained);
         }
       } catch (bugReportError) {
         console.warn('Bug report not available:', bugReportError);
       }
 
-      // Fetch graph data from graph_[filename].json
+      // Fetch graph data
       try {
-        const graphResponse = await fetch(`/api/file/${fileId}/graph`);
+        const graphResponse = await fetch(`/api/file/${fileId}/graph`, { headers });
         if (graphResponse.ok) {
           const graph = await graphResponse.json();
           setGraphData(graph);
@@ -169,6 +192,34 @@ export default function SolidityDetailPage() {
             Back to Files
           </button>
         </div>
+
+        {/* Bug Type Indicators */}
+        {coarseGrainedReport && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+              Detected Vulnerabilities
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {coarseGrainedReport.map((hasVulnerability, index) => (
+                <div
+                  key={index}
+                  className={`px-4 py-2 rounded-lg font-medium text-white shadow-sm transition-all ${
+                    hasVulnerability === 1
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-green-500 hover:bg-green-600'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${
+                      hasVulnerability === 1 ? 'bg-red-200' : 'bg-green-200'
+                    }`}></span>
+                    <span className="text-sm">{bugTypes[index]}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           {fineGrainedReport && sourceCode && (

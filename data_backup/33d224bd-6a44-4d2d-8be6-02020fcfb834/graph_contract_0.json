@@ -1,0 +1,26 @@
+{
+    "nodes": [
+      { "id": "1", "label": "Node 1", "node_type": "Contract Declaration", "group": "A", "code_lines": "2-19", "message": "" },
+      { "id": "2", "label": "Node 2", "node_type": "Function Declaration", "group": "D", "code_lines": "5-11", "message": "Bug: Access Control \n Reason: The function `set` is public and has no access control checks. Anyone can call the `set` function and overwrite any data in the map array \n Suggestion: Initialize the owner, set the owner to the address that deploys the contract using a constructor. Restrict `set` fucntion to the owner by adding chek `require(msg.sender == owner);` on the top the function" },
+      { "id": "3", "label": "Node 3", "node_type": "If", "group": "G", "code_lines": "6-8", "message": "" },
+      { "id": "4", "label": "Node 4", "node_type": "Expression", "group": "C", "code_lines": "7", "message": "" },
+      { "id": "5", "label": "Node 5", "node_type": "End If", "group": "H", "code_lines": "6-8", "message": "" },
+      { "id": "7", "label": "Node 7", "node_type": "Function Declaration", "group": "D", "code_lines": "12-14", "message": "" },
+      { "id": "8", "label": "Node 8", "node_type": "Return", "group": "E", "code_lines": "13", "message": "" },
+      { "id": "9", "label": "Node 9", "node_type": "Function Declaration", "group": "D", "code_lines": "15-18", "message": "" },
+      { "id": "10", "label": "Node 10", "node_type": "Expression", "group": "C", "code_lines": "16", "message": "" },
+      { "id": "11", "label": "Node 11", "node_type": "Expression", "group": "C", "code_lines": "17", "message": "" }
+    ],
+    "links": [
+      { "source": "1", "target": "2", "label": "Edge 1", "edge_type": "Declare" },
+      { "source": "2", "target": "3", "label": "Edge 2", "edge_type": "Next" },
+      { "source": "3", "target": "4", "label": "Edge 3", "edge_type": "True" },
+      { "source": "4", "target": "5", "label": "Edge 4", "edge_type": "Next" },
+      { "source": "3", "target": "5", "label": "Edge 5", "edge_type": "False" },
+      { "source": "1", "target": "7", "label": "Edge 7", "edge_type": "Declare" },
+      { "source": "7", "target": "8", "label": "Edge 8", "edge_type": "Next" },
+      { "source": "1", "target": "9", "label": "Edge 9", "edge_type": "Declare" },
+      { "source": "9", "target": "10", "label": "Edge 10", "edge_type": "Next" },
+      { "source": "10", "target": "11", "label": "Edge 11", "edge_type": "Next" }
+    ]
+}
