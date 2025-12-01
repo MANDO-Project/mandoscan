@@ -127,7 +127,7 @@ const CodeViewer = ({
   return (
     <div 
       ref={containerRef}
-      className="relative flex flex-col h-screen bg-gray-200 p-5 mt-6 border-blue-700 border-[3px] rounded-xl"
+      className="relative flex flex-col h-full min-h-[600px] bg-gray-200 p-5 border-blue-700 border-[3px] rounded-xl"
       onMouseMove={handleMouseMove}
     >
       <style jsx global>{`
