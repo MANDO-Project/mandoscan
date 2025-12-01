@@ -215,10 +215,10 @@ export default function SolidityDetailPage() {
         )}
 
         <div className="grid grid-cols-2 gap-4">
-          {fineGrainedReport && sourceCode && (
+          {sourceCode && (
             <CodeViewer 
               code={sourceCode} 
-              fineGrainedReport={fineGrainedReport} 
+              fineGrainedReport={fineGrainedReport || []} 
               reportMessages={reportMessages}
               onLineHover={handleLineHover}
               onLineLeave={handleLineLeave} 

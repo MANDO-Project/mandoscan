@@ -32,22 +32,22 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     subItems: [{ name: "Solidity", path: "/dashboard/solidity", pro: false }],
   },
-  {
-    icon: <CalenderIcon />,
-    name: "API Reference",
-    path: "/dashboard/api-reference",
-  },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "API Reference",
+  //   path: "/dashboard/api-reference",
+  // },
   {
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/dashboard/profile",
   },
 
-  {
-    icon: <ListIcon />,
-    name: "API Keys",
-    path: "/dashboard/api-keys",
-  },
+  // {
+  //   icon: <ListIcon />,
+  //   name: "API Keys",
+  //   path: "/dashboard/api-keys",
+  // },
   // {
   //   name: "Tables",
   //   icon: <TableIcon />,
@@ -75,11 +75,11 @@ const othersItems: NavItem[] = [
     subItems: [
     ],
   },
-  {
-    icon: <PlugInIcon />,
-    name: "Upgrade plan",
-    path: '/dashboard/upgrade_plan',
-  },
+  // {
+  //   icon: <PlugInIcon />,
+  //   name: "Upgrade plan",
+  //   path: '/dashboard/upgrade_plan',
+  // },
 ];
 
 const AppSidebar: React.FC = () => {

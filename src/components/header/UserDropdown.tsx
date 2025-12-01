@@ -2,11 +2,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useAuth } from "react-oidc-context";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 
 export default function UserDropdown() {
+  const auth = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Get user info from Cognito
+  const userName = auth.user?.profile?.name || auth.user?.profile?.preferred_username || "User";
+  const userEmail = auth.user?.profile?.email || "user@example.com";
 
 function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   e.stopPropagation();
@@ -15,22 +21,14 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
 
 async function handleSignOut() {
     try {
-      // Clear authentication tokens/session
-      // Clear localStorage/sessionStorage
-      localStorage.removeItem('accessToken');
-      sessionStorage.clear();
-      
-      // Clear cookies if using cookie-based auth
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
-      
-      // Redirect to home or login page
-      window.location.href = '/';
+      // Sign out from Cognito
+      await auth.signoutRedirect();
     } catch (error) {
       console.error('Sign out failed:', error);
+      // Fallback: clear local storage and redirect
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/';
     }
   }
 
@@ -47,12 +45,12 @@ async function handleSignOut() {
           <Image
             width={44}
             height={44}
-            src="/images/user/owner.jpg"
+            src="/images/user/new-user.png"
             alt="User"
           />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">minhnn</span>
+        <span className="block mr-1 font-medium text-theme-sm">{userName}</span>
 
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
@@ -81,10 +79,10 @@ async function handleSignOut() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Nhat Minh Nguyen
+            {userName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            nmnguyen@smu.edu.sg
+            {userEmail}
           </span>
         </div>
 
