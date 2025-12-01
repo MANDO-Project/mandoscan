@@ -162,7 +162,7 @@ export default function Graph({
           graphData={graphData}
           nodeLabel={(node) => `Lines: ${node.code_lines}\n${node.label}\nNode Type: ${node.node_type}`}
           linkLabel={(link) => link.edge_type}
-          nodeAutoColorBy="group"
+          nodeColor={(node) => node.color || '#999999'}
           cooldownTicks={100}
           d3AlphaDecay={0.02}
           d3VelocityDecay={0.3}
