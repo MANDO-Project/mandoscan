@@ -90,17 +90,10 @@ export default function SolidityDetailPage() {
           if (graph && graph.nodes) {
             let reportMessages = {};
             graph.nodes.forEach(node => {
-              if (node.message && node.message !== '') {
-                const lines = node.code_lines.split('-');
-                if (lines.length === 1) {
-                  reportMessages[parseInt(lines[0], 10)] = node.message;
-                } else if (lines.length === 2) {
-                  const start = parseInt(lines[0], 10);
-                  const end = parseInt(lines[1], 10);
-                  for (let i = start; i <= end; i++) {
-                    reportMessages[i] = node.message;
-                  }
-                }
+              if (node.message && node.message !== '' && Array.isArray(node.code_lines)) {
+                node.code_lines.forEach(lineNumber => {
+                  reportMessages[lineNumber] = node.message;
+                });
               }
             });
             setReportMessages(reportMessages);

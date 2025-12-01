@@ -20,12 +20,8 @@ export default function Graph({
   useEffect(() => {
     if (hoveredLineNumber && graphData) {
       const matchingNodes = graphData.nodes.filter(node => {
-        if (!node.code_lines) return false;
-        
-        const lines = node.code_lines.split('-');
-        if (lines.length === 1) {
-          return parseInt(lines[0], 10) === hoveredLineNumber;
-        } else { return false;}
+        if (!node.code_lines || !Array.isArray(node.code_lines)) return false;
+        return node.code_lines.includes(hoveredLineNumber);
       });
       console.log('Matching nodes for line', matchingNodes);
       setHighlightedNodes(new Set(matchingNodes.map(node => node.id)));
@@ -104,35 +100,18 @@ export default function Graph({
       return;
     }
     
-    // Convert code_lines to array of line numbers
-    const lines = node.code_lines.split('-');
-    if (lines.length === 1) {
-      onNodeHover(parseInt(lines[0], 10));
-    } else if (lines.length === 2) {
-      const start = parseInt(lines[0], 10);
-      const end = parseInt(lines[1], 10);
-      // Create array of all lines in range
-      const lineRange = Array.from(
-        { length: end - start + 1 }, 
-        (_, i) => start + i
-      );
-      // Send all lines at once
-      lineRange.forEach(line => onNodeHover(line));
+    // code_lines is already an array of line numbers
+    if (Array.isArray(node.code_lines)) {
+      node.code_lines.forEach(line => onNodeHover(line));
     }
   };
 
   const handleNodeClick = (node) => {
     if (!node) return;
     
-    // Convert code_lines to array of line numbers
-    const lines = node.code_lines.split('-');
-    if (lines.length === 1) {
-      onNodeClick(parseInt(lines[0], 10));
-    } else if (lines.length === 2) {
-      const start = parseInt(lines[0], 10);
-      const end = parseInt(lines[1], 10);
-      const center = parseInt((start + end) / 2, 10);
-      onNodeClick(start); // Scroll to the start of the range
+    // code_lines is already an array of line numbers
+    if (Array.isArray(node.code_lines) && node.code_lines.length > 0) {
+      onNodeClick(node.code_lines[0]); // Scroll to the first line
     }
   };
 
@@ -160,7 +139,7 @@ export default function Graph({
           nodeCanvasObject={paintRing}
           nodeCanvasObjectMode={node => 'before'}
           graphData={graphData}
-          nodeLabel={(node) => `Lines: ${node.code_lines}\n${node.label}\nNode Type: ${node.node_type}`}
+          nodeLabel={(node) => `Lines: ${Array.isArray(node.code_lines) ? node.code_lines.join(', ') : node.code_lines}\n${node.label}\nNode Type: ${node.node_type}`}
           linkLabel={(link) => link.edge_type}
           nodeColor={(node) => node.color || '#999999'}
           cooldownTicks={100}
