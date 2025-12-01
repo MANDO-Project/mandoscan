@@ -6687,7 +6687,7 @@ react-kapsule@^2.5:
 
 react-oidc-context@^3.3.0:
   version "3.3.0"
-  resolved "https://registry.npmjs.org/react-oidc-context/-/react-oidc-context-3.3.0.tgz"
+  resolved "https://registry.yarnpkg.com/react-oidc-context/-/react-oidc-context-3.3.0.tgz#ccca8c25c7ba04ca4ec4e3b229b39c122100988f"
   integrity sha512-302T/ma4AOVAxrHdYctDSKXjCq9KNHT564XEO2yOPxRfxEP58xa4nz+GQinNl8x7CnEXECSM5JEjQJk3Cr5BvA==
 
 react-syntax-highlighter@^15.6.1:

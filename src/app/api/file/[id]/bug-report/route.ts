@@ -37,59 +37,47 @@ export async function GET(
     }
 
     const fileData = await fileResponse.json();
-    const resultFileUrl = fileData.result_file_url;
+    const fileStatus = fileData.status;
 
-    console.log('File metadata:', { id, resultFileUrl, status: fileData.status });
+    console.log('File metadata:', { id, status: fileStatus });
 
-    if (!resultFileUrl) {
-      return NextResponse.json({ error: 'Scan results not available yet. Please run scan first.' }, { status: 404 });
-    }
-
-    // Fetch the scan results from S3 URL
-    console.log('Fetching scan results from S3:', resultFileUrl);
-    const s3Response = await fetch(resultFileUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    
-    console.log('S3 response status:', s3Response.status, s3Response.statusText);
-    console.log('S3 response headers:', Object.fromEntries(s3Response.headers.entries()));
-    
-    if (!s3Response.ok) {
-      const errorText = await s3Response.text();
-      console.error('S3 fetch failed:', errorText);
+    if (fileStatus !== 'scanned') {
       return NextResponse.json({ 
-        error: 'Failed to fetch scan results from S3',
-        details: `Status: ${s3Response.status}, URL: ${resultFileUrl}`,
-        message: errorText.substring(0, 200)
-      }, { status: s3Response.status });
+        error: 'Scan results not available yet. Please run scan first.',
+        status: fileStatus 
+      }, { status: 404 });
     }
 
-    const contentType = s3Response.headers.get('content-type');
-    console.log('S3 content type:', contentType);
+    // Fetch the scan results through backend API (which has S3 access)
+    console.log('Fetching bug report from backend API');
+    const bugReportResponse = await fetch(
+      `${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}/bug-report`,
+      {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
     
-    let scanResults;
-    try {
-      const textResponse = await s3Response.text();
-      console.log('S3 response preview:', textResponse.substring(0, 200));
-      scanResults = JSON.parse(textResponse);
-    } catch (parseError: any) {
-      console.error('Failed to parse S3 response as JSON:', parseError);
+    console.log('Bug report response status:', bugReportResponse.status);
+    
+    if (!bugReportResponse.ok) {
+      const errorText = await bugReportResponse.text();
+      console.error('Bug report fetch failed:', errorText);
       return NextResponse.json({ 
-        error: 'Invalid scan results format',
-        details: parseError.message
-      }, { status: 500 });
+        error: 'Failed to fetch bug report',
+        details: `Status: ${bugReportResponse.status}`,
+      }, { status: bugReportResponse.status });
     }
+
+    const bugReportData = await bugReportResponse.json();
     
-    // Extract bug report data from scan results
-    const bugReport = {
-      fine_grained: scanResults.fine_grained || scanResults.vulnerabilities || [],
-      coarse_grained: scanResults.coarse_grained || scanResults.summary || [],
-    };
+    console.log('Bug report data received:', Object.keys(bugReportData));
     
-    return NextResponse.json(bugReport);
+    // Return the bug report data (backend already formats it correctly)
+    return NextResponse.json(bugReportData);
   } catch (error: any) {
     console.error('Error fetching bug report data:', error);
     
