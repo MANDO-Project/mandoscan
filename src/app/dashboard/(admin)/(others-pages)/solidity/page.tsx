@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
+// import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
 import RecentOrders from "@/components/ecommerce/RecentOrders";
 import FileUpload from "@/components/solidity/FileUpload";
 import { useAuth } from "react-oidc-context";
@@ -141,9 +141,9 @@ export default function Ecommerce() {
 
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
+      {/* <div className="col-span-12 space-y-6 xl:col-span-7">
         <EcommerceMetrics />
-      </div>
+      </div> */}
 
       <div className="col-span-12 xl:col-span-7">
         <FileUpload 
