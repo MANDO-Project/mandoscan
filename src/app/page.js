@@ -124,7 +124,7 @@ export default function SmartContractVulnerability() {
             id="detection-form-title"
             className="text-2xl font-bold tracking-tight text-center text-white max-md:max-w-full mb-6"
           >
-            Try the fixed examples or log in to scan your smart contracts
+            Try the selected examples or log in to scan your smart contracts
           </h2>
           {/* <DetectionForm /> */}
 
