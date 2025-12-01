@@ -58,24 +58,14 @@ export default function Header() {
             About MANDO
           </Link>
         </NavbarItem>
-        <NavbarItem>
+        {/* <NavbarItem>
           <Link className="text-white" href={"https://mandoscan.com/#how_it_works"}>
             How It Works
           </Link>
-        </NavbarItem>
+        </NavbarItem> */}
         <NavbarItem>
           <Link className="text-white" href={"https://mandoscan.com/#product"}>
             Products
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link className="text-white" href={"https://mandoscan.com/#bu_model"}>
-            Business Models
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link className="text-white" href={"https://mandoscan.com/#roadmap"}>
-            Roadmap
           </Link>
         </NavbarItem>
         <NavbarItem>
