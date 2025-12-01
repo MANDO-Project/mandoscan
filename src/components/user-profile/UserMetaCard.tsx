@@ -8,13 +8,23 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Image from "next/image";
 
+// Define Cognito user profile interface
+interface CognitoUserProfile {
+  given_name?: string;
+  family_name?: string;
+  name?: string;
+  email?: string;
+  phone_number?: string;
+  "custom:bio"?: string;
+  "custom:location"?: string;
+}
 
 export default function UserMetaCard() {
   const auth = useAuth();
   const { isOpen, openModal, closeModal } = useModal();
   
   // Extract user information from Cognito
-  const userProfile = auth.user?.profile || {};
+  const userProfile = (auth.user?.profile as CognitoUserProfile) || {};
   const firstName = userProfile.given_name || "";
   const lastName = userProfile.family_name || "";
   const fullName = userProfile.name || `${firstName} ${lastName}`.trim();
