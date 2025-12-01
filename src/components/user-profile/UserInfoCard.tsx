@@ -1,13 +1,35 @@
 "use client";
 import React from "react";
+import { useAuth } from "react-oidc-context";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 
+// Define Cognito user profile interface
+interface CognitoUserProfile {
+  given_name?: string;
+  family_name?: string;
+  name?: string;
+  email?: string;
+  phone_number?: string;
+  "custom:bio"?: string;
+  "custom:location"?: string;
+}
+
 export default function UserInfoCard() {
+  const auth = useAuth();
   const { isOpen, openModal, closeModal } = useModal();
+  
+  // Extract user information from Cognito
+  const userProfile = (auth.user?.profile as CognitoUserProfile) || {};
+  const firstName = userProfile.given_name || "";
+  const lastName = userProfile.family_name || "";
+  const email = userProfile.email || "";
+  const phone = userProfile.phone_number || "";
+  const bio = userProfile["custom:bio"] || "";
+  
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -27,7 +49,7 @@ export default function UserInfoCard() {
                 First Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Nhat Minh
+                {firstName || "Not provided"}
               </p>
             </div>
 
@@ -36,7 +58,7 @@ export default function UserInfoCard() {
                 Last Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Nguyen
+                {lastName || "Not provided"}
               </p>
             </div>
 
@@ -45,7 +67,7 @@ export default function UserInfoCard() {
                 Email address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                nmnguyen@smu.edu.sg
+                {email || "Not provided"}
               </p>
             </div>
 
@@ -54,7 +76,7 @@ export default function UserInfoCard() {
                 Phone
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {phone || "Not provided"}
               </p>
             </div>
 
@@ -63,7 +85,7 @@ export default function UserInfoCard() {
                 Bio
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {bio || "Not provided"}
               </p>
             </div>
           </div>
@@ -148,27 +170,27 @@ export default function UserInfoCard() {
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
                     <Label>First Name</Label>
-                    <Input type="text" defaultValue="Minh" />
+                    <Input type="text" defaultValue={firstName} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Last Name</Label>
-                    <Input type="text" defaultValue="Nguyen" />
+                    <Input type="text" defaultValue={lastName} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" defaultValue="nmnguyen@smu.edu.sg" />
+                    <Input type="text" defaultValue={email} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
-                    <Input type="text" defaultValue="+09 363 398 46" />
+                    <Input type="text" defaultValue={phone} />
                   </div>
 
                   <div className="col-span-2">
                     <Label>Bio</Label>
-                    <Input type="text" defaultValue="Team Manager" />
+                    <Input type="text" defaultValue={bio} />
                   </div>
                 </div>
               </div>
