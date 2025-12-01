@@ -6,6 +6,7 @@ frontend:
         - yarn install
     build:
       commands:
+        - echo "Building with SCAN_API_BASE_URL=$SCAN_API_BASE_URL"
         - yarn build
   artifacts:
     baseDirectory: mando-tool
