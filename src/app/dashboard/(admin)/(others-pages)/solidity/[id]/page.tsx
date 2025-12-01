@@ -57,7 +57,7 @@ export default function SolidityDetailPage() {
         'Authorization': `Bearer ${token}`,
       };
       
-      // Fetch file metadata and content
+      // Fetch file metadata
       const response = await fetch(`/api/file/${fileId}`, { headers });
       if (!response.ok) {
         throw new Error('File not found');
@@ -65,7 +65,15 @@ export default function SolidityDetailPage() {
       
       const data = await response.json();
       setFileName(data.fileName);
-      setSourceCode(data.content);
+
+      // Fetch source code separately
+      const sourceCodeResponse = await fetch(`/api/file/${fileId}/source-code`, { headers });
+      if (sourceCodeResponse.ok) {
+        const sourceCodeText = await sourceCodeResponse.text();
+        setSourceCode(sourceCodeText);
+      } else {
+        console.warn('Source code not available');
+      }
 
       // Fetch bug report
       try {
