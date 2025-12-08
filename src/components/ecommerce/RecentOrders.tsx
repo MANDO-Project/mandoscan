@@ -54,6 +54,7 @@ export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: Rec
 
   // Get badge color based on status
   const getBadgeColor = (status: string): "success" | "warning" | "error" | "info" => {
+    if (!status) return 'info';
     switch (status.toLowerCase()) {
       case 'scanned':
         return 'success';
@@ -117,7 +118,7 @@ export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: Rec
 
   // Handle row click to navigate to detail page (only for scanned files)
   const handleRowClick = (file: UploadedFile, event: React.MouseEvent) => {
-    if (file.status.toLowerCase() === 'scanned') {
+    if (file.status && file.status.toLowerCase() === 'scanned') {
       event.preventDefault();
       console.log('Navigating to:', `/dashboard/solidity/${file.id}`);
       router.push(`/dashboard/solidity/${file.id}`);
@@ -236,7 +237,7 @@ export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: Rec
                 <TableRow 
                   key={file.id} 
                   className={`transition-colors ${
-                    file.status.toLowerCase() === 'scanned' 
+                    file.status && file.status.toLowerCase() === 'scanned' 
                       ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02]' 
                       : ''
                   }`}
@@ -276,11 +277,11 @@ export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: Rec
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <Badge size="sm" color={getBadgeColor(file.status)}>
-                      {file.status}
+                      {file.status || 'Unknown'}
                     </Badge>
                   </TableCell>
                   <TableCell className="py-3">
-                    {(file.status.toLowerCase() === 'pending' || file.status.toLowerCase() === 'uploaded') && (
+                    {file.status && (file.status.toLowerCase() === 'pending' || file.status.toLowerCase() === 'uploaded') && (
                       <button
                         onClick={(e) => handleScan(file.id, e)}
                         disabled={scanning === file.id}
@@ -289,7 +290,7 @@ export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: Rec
                         {scanning === file.id ? 'Scanning...' : 'Scan'}
                       </button>
                     )}
-                    {file.status.toLowerCase() === 'scanned' && (
+                    {file.status && file.status.toLowerCase() === 'scanned' && (
                       <button
                         onClick={(e) => handleRowClick(file, e)}
                         className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03] transition-colors"
@@ -297,7 +298,7 @@ export default function RecentOrders({ uploadedFiles = [], onStatusUpdate }: Rec
                         View Details
                       </button>
                     )}
-                    {file.status.toLowerCase() === 'failed' && (
+                    {file.status && file.status.toLowerCase() === 'failed' && (
                       <button
                         onClick={(e) => handleViewError(file.errorMessage || 'No error message', e)}
                         className="px-4 py-2 rounded-lg border border-red-300 text-red-700 text-sm font-medium hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/10 transition-colors"

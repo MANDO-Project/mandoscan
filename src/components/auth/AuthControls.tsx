@@ -7,9 +7,9 @@ export default function AuthControls() {
   const auth = useAuth();
 
   const signOutRedirect = () => {
-    const clientId = "6tie9nelelglhhi6polah5ruhc";
-    const logoutUri = "http://localhost:3000";
-    const cognitoDomain = "https://ap-southeast-1uu8mux2f6.auth.ap-southeast-1.amazoncognito.com";
+    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
+    const logoutUri = process.env.NEXT_PUBLIC_LOGOUT_URI || window.location.origin;
+    const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
     // Remove user from oidc storage first
     auth.removeUser();
     // Then redirect to Cognito logout

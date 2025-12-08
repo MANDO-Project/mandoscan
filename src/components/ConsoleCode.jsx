@@ -20,8 +20,10 @@ const CodeViewer = ({
   const [hoveredLine, setHoveredLine] = React.useState(null);
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
   const [linePosition, setLinePosition] = React.useState({ top: 0, left: 0, width: 0 });
+  const [isPopupHovered, setIsPopupHovered] = React.useState(false);
   const containerRef = React.useRef(null);
   const codeRef = React.useRef(null);
+  const hideTimeoutRef = React.useRef(null);
   React.useEffect(() => {
     if (scrollToLine && codeRef.current) {
       const lineElements = codeRef.current.querySelectorAll('[data-line-number]');
@@ -93,6 +95,12 @@ const CodeViewer = ({
   };
 
   const handleLineHover = (lineNumber, event) => {
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    
     setHoveredLine(lineNumber);
     
     // Get the absolute viewport position of the hovered line and code container
@@ -113,15 +121,74 @@ const CodeViewer = ({
   };
 
   const handleLineLeave = () => {
-    setHoveredLine(null);
-    onLineLeave(); // Notify parent component
+    // Only hide if popup is not being hovered
+    if (!isPopupHovered) {
+      hideTimeoutRef.current = setTimeout(() => {
+        setHoveredLine(null);
+        onLineLeave();
+      }, 300);
+    }
   };
+
+  const handlePopupEnter = () => {
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    setIsPopupHovered(true);
+  };
+
+  const handlePopupLeave = () => {
+    setIsPopupHovered(false);
+    setHoveredLine(null);
+    onLineLeave();
+  };
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const getMessageForLine = (lineNumber) => {
     // If reportMessages prop is provided, use it. Otherwise, use default message.
     const message = reportMessages[lineNumber] || `Issue detected on line ${lineNumber}`;
     const lines = message.split('\n').filter(line => line.trim());
-    return lines;
+    
+    // Group lines into bug sections (Bug, Reason, Suggestion)
+    const bugs = [];
+    let currentBug = { bug: '', reason: '', suggestion: '' };
+    
+    lines.forEach(line => {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('Bug:')) {
+        // Save previous bug if exists
+        if (currentBug.bug) {
+          bugs.push(currentBug);
+        }
+        // Start new bug
+        currentBug = { 
+          bug: trimmedLine.replace(/^Bug:\s*/, ''),
+          reason: '',
+          suggestion: ''
+        };
+      } else if (trimmedLine.startsWith('Reason:')) {
+        currentBug.reason = trimmedLine.replace(/^Reason:\s*/, '');
+      } else if (trimmedLine.startsWith('Suggestion:')) {
+        currentBug.suggestion = trimmedLine.replace(/^Suggestion:\s*/, '');
+      }
+    });
+    
+    // Add the last bug
+    if (currentBug.bug) {
+      bugs.push(currentBug);
+    }
+    
+    return bugs.length > 0 ? bugs : [{ bug: message, reason: '', suggestion: '' }];
   };
 
   return (
@@ -210,23 +277,42 @@ const CodeViewer = ({
         {/* Popup Message Box */}
         {hoveredLine && (
           <div 
-            className="fixed z-[9999] px-3 py-2 text-xl bg-gray-800 text-white rounded-lg shadow-xl pointer-events-none border-2 border-gray-600"
+            className="fixed z-[9999] px-4 py-3 text-base bg-gray-800 text-white rounded-lg shadow-xl border-2 border-gray-600 cursor-auto"
             style={{
               left: `${linePosition.left}px`,
               top: `${linePosition.top}px`,
               transform: 'translate(-50%, calc(-100% - 15px))',
               animation: 'fadeInScale 0.2s ease-out forwards',
-              minWidth: '600px',
-              maxWidth: '600px'
+              minWidth: '650px',
+              maxWidth: '700px',
+              maxHeight: '500px',
+              overflowY: 'auto'
             }}
+            onMouseEnter={handlePopupEnter}
+            onMouseLeave={handlePopupLeave}
           >
-            <ul className="list-disc pl-4 space-y-2">
-              {getMessageForLine(hoveredLine).map((line, index) => (
-                <li key={index} className="leading-tight">
-                  {line.replace(/^[-•]\s*/, '').trim()}
-                </li>
+            <div className="space-y-4">
+              {getMessageForLine(hoveredLine).map((bug, index) => (
+                <div key={index} className="border-l-4 border-red-500 pl-3 pb-3 last:pb-0">
+                  <div className="mb-2">
+                    <span className="font-bold text-red-400">Bug: </span>
+                    <span className="text-white">{bug.bug}</span>
+                  </div>
+                  {bug.reason && (
+                    <div className="mb-2">
+                      <span className="font-bold text-yellow-400">Reason: </span>
+                      <span className="text-gray-300">{bug.reason}</span>
+                    </div>
+                  )}
+                  {bug.suggestion && (
+                    <div>
+                      <span className="font-bold text-green-400">Suggestion: </span>
+                      <span className="text-gray-300">{bug.suggestion}</span>
+                    </div>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
             {/* Arrow pointing down */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-transparent border-t-gray-800"></div>
           </div>

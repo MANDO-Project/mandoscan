@@ -21,7 +21,7 @@ export async function GET(
     const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
 
     // Fetch source code from external API
-    const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}/source_code`, {
+    const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}/cleaned_source_code`, {
       method: 'GET',
       headers: {
         'accept': 'text/plain',

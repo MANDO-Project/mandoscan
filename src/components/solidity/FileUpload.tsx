@@ -56,22 +56,20 @@ export default function FileUpload({ onFileUploaded, onStatusUpdate }: FileUploa
 
       if (response.ok) {
         const newFile = {
-          id: data.id,
-          fileName: data.file_name || file.name,
-          uploadDate: data.upload_date || new Date().toISOString(),
-          fileSize: data.file_size || file.size,
-          status: data.status === 'uploaded' ? 'pending' : data.status,
+          id: data.id || data.file_id,
+          fileName: data.file_name || data.fileName || file.name,
+          uploadDate: data.upload_date || data.uploadDate || new Date().toISOString(),
+          fileSize: data.file_size || data.fileSize || file.size,
+          status: data.status || 'pending', // Default to 'pending' if status not provided
           estimatedCost: data.estimated_cost || data.estimatedCost || 1.0,
         };
+        
+        console.log('New file uploaded:', newFile); // Debug log
         
         // Notify parent component of successful upload
         onFileUploaded(newFile);
         
-        if (data.status === 'uploaded') {
-          alert('File uploaded successfully! Click "Scan" to start the analysis.');
-        } else {
-          alert('File uploaded successfully!');
-        }
+        alert('File uploaded successfully! Click "Scan" to start the analysis.');
       } else {
         alert(`Upload failed: ${data.error}`);
       }

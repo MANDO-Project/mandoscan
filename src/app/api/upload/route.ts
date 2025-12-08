@@ -57,7 +57,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       id: data.id || data.file_id,
+      file_id: data.id || data.file_id,
+      fileName: data.fileName || data.file_name || file.name,
+      file_name: data.file_name || data.fileName || file.name,
+      uploadDate: data.uploadDate || data.upload_date || new Date().toISOString(),
+      upload_date: data.upload_date || data.uploadDate || new Date().toISOString(),
+      fileSize: data.fileSize || data.file_size || file.size,
+      file_size: data.file_size || data.fileSize || file.size,
+      status: data.status || 'pending',
       estimatedCost: data.estimatedCost || data.estimated_cost || 1.0,
+      estimated_cost: data.estimated_cost || data.estimatedCost || 1.0,
       message: 'File uploaded successfully' 
     });
   } catch (error: any) {

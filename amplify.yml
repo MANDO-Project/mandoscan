@@ -4,9 +4,11 @@ frontend:
     preBuild:
       commands:
         - yarn install
+        - echo "Environment check - SCAN_API_BASE_URL=$SCAN_API_BASE_URL"
     build:
       commands:
         - echo "Building with SCAN_API_BASE_URL=$SCAN_API_BASE_URL"
+        - export SCAN_API_BASE_URL=$SCAN_API_BASE_URL
         - yarn build
   artifacts:
     baseDirectory: mando-tool
