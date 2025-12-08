@@ -7,7 +7,6 @@ import { User } from "oidc-client-ts";
 const cognitoAuthConfig = {
   authority: process.env.NEXT_PUBLIC_COGNITO_AUTHORITY! || "https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_Uu8mUX2F6",
   client_id: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID! || "6tie9nelelglhhi6polah5ruhc",
-  client_secret: process.env.NEXT_PUBLIC_COGNITO_CLIENT_SECRET, // Add client secret if required
   // redirect_uri: typeof window !== 'undefined' ? window.location.origin : '', // Use dynamic redirect URI
   redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI!,
   response_type: "code",
