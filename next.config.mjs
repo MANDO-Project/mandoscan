@@ -7,9 +7,9 @@ const nextConfig = {
     },
 
     // Explicitly expose environment variables for Amplify deployment
-    env: {
-        SCAN_API_BASE_URL: process.env.SCAN_API_BASE_URL,
-    },
+    // env: {
+    //     SCAN_API_BASE_URL: process.env.SCAN_API_BASE_URL,
+    // },
 
     webpack(config) {
     config.module.rules.push({
