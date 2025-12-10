@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get API base URL from environment variable
-    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
 
     // Create new FormData to send to external API
     const externalFormData = new FormData();

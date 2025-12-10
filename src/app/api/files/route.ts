@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
     const pageSize = searchParams.get('page_size') || '50';
 
     // Get API base URL from environment variable
-    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
-    console.log('Using SCAN_API_BASE_URL:', apiBaseUrl);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
+    console.log('Using NEXT_PUBLIC_SCAN_API_BASE_URL:', apiBaseUrl);
 
     // Call external API to get files list
     const apiUrl = `${apiBaseUrl}/v1.0.0/vulnerability/detection/files?page=${page}&page_size=${pageSize}`;
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Cannot connect to external API. Please ensure the API server is running.',
-          apiUrl: `${process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app'}/v1.0.0/vulnerability/detection/files`,
+          apiUrl: `${process.env.NEXT_PUBLIC_SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app'}/v1.0.0/vulnerability/detection/files`,
           details: error.message
         },
         { status: 503 }

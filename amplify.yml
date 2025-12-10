@@ -6,7 +6,7 @@ frontend:
         - yarn install
     build:
       commands:
-        - echo "Building with SCAN_API_BASE_URL=$SCAN_API_BASE_URL"
+        - echo "Building with NEXT_PUBLIC_SCAN_API_BASE_URL=$NEXT_PUBLIC_SCAN_API_BASE_URL"
         - echo "Cognito Client ID - $NEXT_PUBLIC_COGNITO_CLIENT_ID"
         - echo "Authority - $NEXT_PUBLIC_COGNITO_AUTHORITY"
         - echo "Redirect URI - $NEXT_PUBLIC_REDIRECT_URI"

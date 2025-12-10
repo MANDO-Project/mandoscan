@@ -18,7 +18,7 @@ export async function GET(
     const { id } = await params;
 
     // Get API base URL from environment variable
-    const apiBaseUrl = process.env.SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SCAN_API_BASE_URL || 'https://5de91c29fdd0.ngrok-free.app';
 
     // Fetch file details from external API
     const response = await fetch(`${apiBaseUrl}/v1.0.0/vulnerability/detection/files/${id}`, {
