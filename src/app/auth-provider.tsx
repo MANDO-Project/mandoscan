@@ -11,6 +11,7 @@ const cognitoAuthConfig = {
   post_logout_redirect_uri: process.env.NEXT_PUBLIC_LOGOUT_URI!,
   response_type: "code",
   scope: "email openid phone",
+
   // This function is triggered after a user is successfully signed in
   onSigninCallback: (_user: User | void): void => {
     // Redirect user to the home page after login
@@ -21,6 +22,13 @@ const cognitoAuthConfig = {
     window.location.href = "/";
   }
 };
+
+console.log("Cognito Auth Config:", {
+    authority: process.env.NEXT_PUBLIC_COGNITO_AUTHORITY,
+    client_id: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID,
+    redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
+    post_logout_redirect_uri: process.env.NEXT_PUBLIC_LOGOUT_URI,
+  });
 
 export default function CognitoAuthProvider({
   children,
