@@ -4,16 +4,14 @@ frontend:
     preBuild:
       commands:
         - yarn install
-        - echo "Environment check - SCAN_API_BASE_URL=$SCAN_API_BASE_URL"
     build:
       commands:
         - echo "Building with SCAN_API_BASE_URL=$SCAN_API_BASE_URL"
-        - export SCAN_API_BASE_URL=$SCAN_API_BASE_URL
-        - export NEXT_PUBLIC_COGNITO_CLIENT_ID=$NEXT_PUBLIC_COGNITO_CLIENT_ID
-        - export NEXT_PUBLIC_COGNITO_AUTHORITY=$NEXT_PUBLIC_COGNITO_AUTHORITY
-        - export NEXT_PUBLIC_COGNITO_DOMAIN=$NEXT_PUBLIC_COGNITO_DOMAIN
-        - export NEXT_PUBLIC_REDIRECT_URI=$NEXT_PUBLIC_REDIRECT_URI
-        - echo "Cognito settings - $NEXT_PUBLIC_COGNITO_CLIENT_ID, $NEXT_PUBLIC_COGNITO_AUTHORITY"
+        - echo "Cognito Client ID - $NEXT_PUBLIC_COGNITO_CLIENT_ID"
+        - echo "Authority - $NEXT_PUBLIC_COGNITO_AUTHORITY"
+        - echo "Redirect URI - $NEXT_PUBLIC_REDIRECT_URI"
+        - echo "Logout URI - $NEXT_PUBLIC_LOGOUT_URI"
+        - echo "Public domain - $NEXT_PUBLIC_COGNITO_DOMAIN"
         - yarn build
   artifacts:
     baseDirectory: mando-tool

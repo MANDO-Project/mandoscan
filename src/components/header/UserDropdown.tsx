@@ -20,16 +20,15 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
 }
 
 async function handleSignOut() {
-    try {
-      // Sign out from Cognito
-      await auth.signoutRedirect();
-    } catch (error) {
-      console.error('Sign out failed:', error);
-      // Fallback: clear local storage and redirect
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/';
-    }
+    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
+    const logoutUri = process.env.NEXT_PUBLIC_LOGOUT_URI! || window.location.origin;
+    const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN!;
+    
+    // Remove user from local storage
+    await auth.removeUser();
+    
+    // Manually redirect to Cognito logout with proper parameters
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   }
 
   function closeDropdown() {

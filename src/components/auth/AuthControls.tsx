@@ -6,14 +6,16 @@ import { useAuth } from "react-oidc-context";
 export default function AuthControls() {
   const auth = useAuth();
 
-  const signOutRedirect = () => {
-    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
-    const logoutUri = process.env.NEXT_PUBLIC_LOGOUT_URI || window.location.origin;
-    const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
-    // Remove user from oidc storage first
-    auth.removeUser();
-    // Then redirect to Cognito logout
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  const signOutRedirect = async () => {
+      const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
+      const logoutUri = process.env.NEXT_PUBLIC_LOGOUT_URI || window.location.origin;
+      const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
+      
+      // Remove user from local storage
+      await auth.removeUser();
+      
+      // Manually redirect to Cognito logout with proper parameters
+      window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 
   // Handle loading state
@@ -31,7 +33,7 @@ export default function AuthControls() {
     return (
       <div className="text-white">
         <p>Hello, <strong>{auth.user?.profile.email}</strong></p>
-        <button onClick={() => signOutRedirect()}>Sign Out</button>
+        <button onClick={signOutRedirect}>Sign Out</button>
       </div>
     )  as ReactElement;
   }
